@@ -1,0 +1,24 @@
+{
+  "name": "@riad/shared",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Zod schemas, inferred types and constants shared by the API and the web app",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@riad/config": "workspace:*",
+    "typescript": "^5.6.0",
+    "vitest": "^3.0.0"
+  }
+}

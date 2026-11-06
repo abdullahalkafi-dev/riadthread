@@ -1,0 +1,4 @@
+{
+  "extends": "@riad/config/tsconfig.base.json",
+  "include": ["src"]
+}
