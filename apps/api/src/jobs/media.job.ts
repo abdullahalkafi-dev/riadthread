@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { logger } from '../config/logger';
@@ -28,10 +28,9 @@ export async function processMedia(mediaId: string): Promise<void> {
   const tmp = await mkdtemp(join(tmpdir(), 'riad-media-'));
 
   try {
-    const original = await storage.getPrivate(media.originalKey);
-
     if (media.type === 'image') {
-      const result = await processImage(original);
+      // Images are capped at 8 MB, so sharp can work on them in memory.
+      const result = await processImage(await storage.getPrivate(media.originalKey));
       const variants = [];
       for (const v of result.variants) {
         const key = `images/${media._id}/${v.width}.${v.format}`;
@@ -42,10 +41,11 @@ export async function processMedia(mediaId: string): Promise<void> {
     } else {
       const ext = EXT[media.mime] ?? 'bin';
       const fileKey = `${media.type}s/${media._id}/file.${ext}`;
+      // Videos, 3D models and PDFs go through a temporary file, never fully into memory.
+      const input = join(tmp, `input.${ext}`);
+      await storage.downloadPrivate(media.originalKey, input);
 
       if (media.type === 'video') {
-        const input = join(tmp, `input.${ext}`);
-        await writeFile(input, original);
         const duration = await probeDuration(input);
         if (duration !== null && duration > UPLOAD_LIMITS.video.maxSeconds) {
           throw new Error(`The video is ${duration}s long. The limit is ${UPLOAD_LIMITS.video.maxSeconds}s`);
@@ -56,14 +56,14 @@ export async function processMedia(mediaId: string): Promise<void> {
           const posterPath = join(tmp, 'poster.jpg');
           await extractPoster(input, posterPath);
           const posterKey = `videos/${media._id}/poster.jpg`;
-          await storage.putPublic(posterKey, await readFile(posterPath), 'image/jpeg');
+          await storage.putPublic(posterKey, posterPath, 'image/jpeg');
           media.posterKey = posterKey;
         } else {
           logger.warn({ mediaId }, 'ffmpeg is not installed: no poster generated for this video');
         }
       }
 
-      await storage.putPublic(fileKey, original, media.mime);
+      await storage.putPublic(fileKey, input, media.mime);
       media.fileKey = fileKey;
     }
 

@@ -1,7 +1,8 @@
 import request from 'supertest';
 import mongoose from 'mongoose';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { countQueries, setup, teardown, TAG, uploadImage, type Session } from '../../test/helpers';
+import { env } from '../../config/env';
+import { countQueries, setup, teardown, TAG, uploadImage, waitForMedia, type Session } from '../../test/helpers';
 import { Category, Collection } from '../taxonomy/taxonomy.model';
 import { Media } from '../media/media.model';
 import { deleteMedia } from '../media/media.service';
@@ -11,7 +12,10 @@ let admin: Session;
 let app: Awaited<ReturnType<typeof setup>>['app'];
 let categoryId = '';
 let collectionId = '';
+/** Photos attached to products (tests below rely on these being in use). */
 const mediaIds: string[] = [];
+/** Standalone uploads not attached to anything. */
+const fileIds: string[] = [];
 const productIds: string[] = [];
 
 async function makeProduct(n: number, extra: Record<string, unknown> = {}) {
@@ -53,8 +57,8 @@ beforeAll(async () => {
 afterAll(async () => {
   await Product.deleteMany({ _id: { $in: productIds } });
   // Remove files from storage too, not just the database records.
-  for (const id of mediaIds) await deleteMedia(id).catch(() => undefined);
-  await Media.deleteMany({ _id: { $in: mediaIds } });
+  for (const id of [...mediaIds, ...fileIds]) await deleteMedia(id).catch(() => undefined);
+  await Media.deleteMany({ _id: { $in: [...mediaIds, ...fileIds] } });
   await Category.deleteMany({ name: new RegExp(`^${TAG}`) });
   await Collection.deleteMany({ name: new RegExp(`^${TAG}`) });
   await teardown();
@@ -70,6 +74,23 @@ describe('product workflow', () => {
     const small = await admin.post('/api/v1/admin/media').attach('file', tiny, 'tiny.jpg');
     expect(small.status).toBe(422);
     expect(small.body.message).toMatch(/too small/i);
+  });
+
+  it('streams a large non-image file through to public storage unchanged', async () => {
+    const { randomBytes, createHash } = await import('node:crypto');
+    const pdf = Buffer.concat([Buffer.from('%PDF-1.4\n'), randomBytes(10 * 1024 * 1024), Buffer.from('\n%%EOF\n')]);
+    const res = await admin.post('/api/v1/admin/media').attach('file', pdf, 'line-sheet.pdf');
+    expect(res.status, JSON.stringify(res.body)).toBe(202);
+    fileIds.push(res.body.data.id);
+    const done = await waitForMedia(admin, res.body.data.id);
+    expect(done.status, done.error).toBe('ready');
+
+    // Read it back anonymously from the public bucket, as a visitor would.
+    const key = (done.url as string).replace(/^\/media\//, '');
+    const served = await fetch(`${env.S3_ENDPOINT}/${env.S3_BUCKET_PUBLIC}/${key}`);
+    expect(served.status).toBe(200);
+    const hash = (b: Buffer) => createHash('sha256').update(b).digest('hex');
+    expect(hash(Buffer.from(await served.arrayBuffer()))).toBe(hash(pdf));
   });
 
   it('keeps a draft out of the public catalogue and blocks publishing when not ready', async () => {

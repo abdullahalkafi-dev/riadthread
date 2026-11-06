@@ -7,7 +7,9 @@ import {
   PutObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
-import { createReadStream } from 'node:fs';
+import { createReadStream, createWriteStream } from 'node:fs';
+import type { Readable } from 'node:stream';
+import { pipeline } from 'node:stream/promises';
 import { env } from '../config/env';
 import { logger } from '../config/logger';
 
@@ -84,18 +86,26 @@ export const storage = {
     );
   },
 
-  putPublic(key: string, body: Buffer, contentType: string) {
+  /** A Buffer for small renditions, or a file path so large files are streamed, never held in memory. */
+  putPublic(key: string, body: Buffer | string, contentType: string) {
     return s3.send(
       new PutObjectCommand({
         Bucket: env.S3_BUCKET_PUBLIC,
         Key: key,
-        Body: body,
+        Body: typeof body === 'string' ? createReadStream(body) : body,
         ContentType: contentType,
         CacheControl: IMMUTABLE,
       }),
     );
   },
 
+  /** Streams a private original straight to disk (videos can be 150 MB). */
+  async downloadPrivate(key: string, destPath: string): Promise<void> {
+    const res = await s3.send(new GetObjectCommand({ Bucket: env.S3_BUCKET_PRIVATE, Key: key }));
+    await pipeline(res.Body as Readable, createWriteStream(destPath));
+  },
+
+  /** Small originals only (images are capped at 8 MB); use downloadPrivate for anything larger. */
   async getPrivate(key: string): Promise<Buffer> {
     const res = await s3.send(new GetObjectCommand({ Bucket: env.S3_BUCKET_PRIVATE, Key: key }));
     return Buffer.from(await res.Body!.transformToByteArray());
