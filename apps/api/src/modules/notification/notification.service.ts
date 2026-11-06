@@ -70,9 +70,9 @@ export async function processOutbox(outboxId: string): Promise<void> {
     if (claimed.type === 'enquiry.confirmation') {
       await sendMail([enquiry.contact.email], confirmationMail(toMail(enquiry)));
     } else if (claimed.type === 'enquiry.notification') {
-      const to = settings.notifications.emails;
+      const to = settings.notifications.emails.length > 0 ? settings.notifications.emails : env.NOTIFY_EMAILS;
       if (to.length === 0) {
-        logger.warn({ ref: enquiry.ref }, 'No notification e-mail addresses are configured in Settings');
+        logger.warn({ ref: enquiry.ref }, 'No notification addresses in Settings or NOTIFY_EMAILS; nobody was told');
       } else {
         await sendMail(to, notificationMail(toMail(enquiry, `${enquiry.score?.level ?? ''} lead`.trim())));
       }

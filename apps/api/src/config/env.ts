@@ -43,6 +43,20 @@ const schema = z.object({
   /** e.g. smtp://user:pass@host:587. Without it, e-mails are written to the log. */
   SMTP_URL: z.string().optional(),
   MAIL_FROM: z.string().default('Riad Threads <no-reply@localhost>'),
+  /**
+   * Comma-separated addresses that receive new-lead e-mails until the owner
+   * saves their own list in Settings. Settings always wins once it is filled.
+   */
+  NOTIFY_EMAILS: z
+    .string()
+    .default('')
+    .transform((v) =>
+      v
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean),
+    )
+    .pipe(z.array(z.string().email())),
 
   TURNSTILE_SECRET: z.string().optional(),
 

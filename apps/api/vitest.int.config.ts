@@ -7,6 +7,8 @@ process.loadEnvFile(resolve(import.meta.dirname, '../../.env'));
 // No cache Redis: every read hits the database, so queries can be counted.
 process.env.REDIS_QUEUE_URL = '';
 process.env.REDIS_CACHE_URL = '';
+// Never send real e-mail from tests: messages go to the log transport instead.
+process.env.SMTP_URL = '';
 process.env.LOG_LEVEL = 'silent';
 process.env.NODE_ENV = 'test';
 
