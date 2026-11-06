@@ -6,7 +6,7 @@ import { Enquiry, type EnquiryDoc } from '../enquiry/enquiry.model';
 import { loadMedia } from '../media/media.service';
 import { getSettings } from '../settings/settings.service';
 import { confirmationMail, lineSheetMail, notificationMail, type EnquiryMail } from './email.templates';
-import { Outbox } from './outbox.model';
+import { Outbox, type OutboxType } from './outbox.model';
 
 /** Wait before attempt 2, 3, 4, 5. After the fifth failure the e-mail is marked failed. */
 const BACKOFF_MS = [60_000, 5 * 60_000, 15 * 60_000, 60 * 60_000, 6 * 60 * 60_000];
@@ -49,6 +49,14 @@ function toMail(e: EnquiryDoc, scoreLabel?: string): EnquiryMail {
 }
 
 /**
+ * Which status on the enquiry an e-mail reports to. The owner alert is
+ * "notification"; everything sent to the customer (the confirmation, or the
+ * line sheet link for a line sheet request) is "confirmation".
+ */
+const emailField = (type: OutboxType): 'notification' | 'confirmation' =>
+  type === 'enquiry.notification' ? 'notification' : 'confirmation';
+
+/**
  * Sends one outbox e-mail. It is claimed atomically first, so two workers (or a
  * worker and the sweeper) can never send the same message twice. Failures are
  * recorded on the outbox record, which owns the retry schedule.
@@ -61,7 +69,7 @@ export async function processOutbox(outboxId: string): Promise<void> {
   );
   if (!claimed) return;
 
-  const field = claimed.type === 'enquiry.notification' ? 'notification' : 'confirmation';
+  const field = emailField(claimed.type);
   try {
     const enquiry = (await Enquiry.findById(claimed.enquiryId).lean()) as unknown as EnquiryDoc | null;
     if (!enquiry) throw new Error('The enquiry no longer exists');
@@ -72,10 +80,15 @@ export async function processOutbox(outboxId: string): Promise<void> {
     } else if (claimed.type === 'enquiry.notification') {
       const to = settings.notifications.emails.length > 0 ? settings.notifications.emails : env.NOTIFY_EMAILS;
       if (to.length === 0) {
+        // Nothing was sent, so the dashboard must not say "sent".
         logger.warn({ ref: enquiry.ref }, 'No notification addresses in Settings or NOTIFY_EMAILS; nobody was told');
-      } else {
-        await sendMail(to, notificationMail(toMail(enquiry, `${enquiry.score?.level ?? ''} lead`.trim())));
+        claimed.status = 'skipped';
+        claimed.attempts += 1;
+        await claimed.save();
+        await Enquiry.updateOne({ _id: claimed.enquiryId }, { $set: { [`email.${field}`]: 'skipped' } });
+        return;
       }
+      await sendMail(to, notificationMail(toMail(enquiry, `${enquiry.score?.level ?? ''} lead`.trim())));
     } else {
       const mediaId = settings.lineSheet.mediaId;
       const file = mediaId ? (await loadMedia([mediaId])).get(mediaId) : undefined;
@@ -125,10 +138,12 @@ export async function sweepOutbox(): Promise<number> {
 
 /** Admin action: try failed e-mails for an enquiry again. */
 export async function retryFailedEmails(enquiryId: string): Promise<number> {
-  const failed = await Outbox.find({ enquiryId, status: 'failed' }).select('_id').lean();
+  const failed = await Outbox.find({ enquiryId, status: 'failed' }).select('_id type').lean();
   if (failed.length === 0) return 0;
   await Outbox.updateMany({ enquiryId, status: 'failed' }, { $set: { status: 'pending', attempts: 0, nextAttemptAt: new Date() }, $unset: { lastError: 1 } });
-  await Enquiry.updateOne({ _id: enquiryId }, { $set: { 'email.confirmation': 'pending', 'email.notification': 'pending' } });
+  // Only the e-mails being retried go back to "pending"; one that was sent stays "sent".
+  const reset = Object.fromEntries(failed.map((f) => [`email.${emailField(f.type as OutboxType)}`, 'pending']));
+  await Enquiry.updateOne({ _id: enquiryId }, { $set: reset });
   await Promise.all(failed.map((f) => enqueueOutbox(String(f._id), Date.now())));
   return failed.length;
 }

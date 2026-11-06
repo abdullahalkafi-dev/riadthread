@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { env } from '../../config/env';
 import { countQueries, setup, teardown, TAG, uploadImage, type Session } from '../../test/helpers';
 import { Media } from '../media/media.model';
 import { deleteMedia } from '../media/media.service';
@@ -228,6 +229,41 @@ describe('tracking consent', () => {
       .set('content-type', 'text/plain')
       .send(JSON.stringify({ ...batch, events: [{ eventId: `${TAG}-evt-0000003`, type: 'page_view', path: '/', at: Date.now() }] }));
     expect(beacon.status).toBe(202);
+  });
+});
+
+describe('e-mail status', () => {
+  it('retries only the e-mail that failed and leaves a sent one as sent', async () => {
+    const ref = (await submit(body())).body.data.ref as string;
+    const saved = await waitForEmails(ref);
+    expect(saved?.email?.notification).toBe('sent');
+
+    // Simulate the owner alert failing for good.
+    await Outbox.updateOne({ enquiryId: saved!._id, type: 'enquiry.notification' }, { $set: { status: 'failed' } });
+    await Enquiry.updateOne({ _id: saved!._id }, { $set: { 'email.notification': 'failed' } });
+
+    const res = await admin.post(`/api/v1/admin/enquiries/${saved!._id}/emails/retry`);
+    expect(res.body.data.retried).toBe(1);
+    const after = await Enquiry.findById(saved!._id).lean();
+    expect(after?.email?.confirmation).toBe('sent');
+    expect(['pending', 'sent']).toContain(after?.email?.notification);
+  });
+
+  it('reports the owner alert as skipped, not sent, when there is nobody to send it to', async () => {
+    const original = env.NOTIFY_EMAILS;
+    env.NOTIFY_EMAILS = [];
+    try {
+      const ref = (await submit(body())).body.data.ref as string;
+      let e = await Enquiry.findOne({ ref }).lean();
+      for (let i = 0; i < 40 && e?.email?.notification === 'pending'; i++) {
+        await new Promise((r) => setTimeout(r, 250));
+        e = await Enquiry.findOne({ ref }).lean();
+      }
+      expect(e?.email?.notification).toBe('skipped');
+      expect((await Outbox.findOne({ enquiryId: e!._id, type: 'enquiry.notification' }).lean())?.status).toBe('skipped');
+    } finally {
+      env.NOTIFY_EMAILS = original;
+    }
   });
 });
 

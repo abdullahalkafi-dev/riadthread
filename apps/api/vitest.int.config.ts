@@ -9,6 +9,8 @@ process.env.REDIS_QUEUE_URL = '';
 process.env.REDIS_CACHE_URL = '';
 // Never send real e-mail from tests: messages go to the log transport instead.
 process.env.SMTP_URL = '';
+// A fixed owner address, so tests do not depend on what is in the local .env.
+process.env.NOTIFY_EMAILS = 'owner@example.com';
 process.env.LOG_LEVEL = 'silent';
 process.env.NODE_ENV = 'test';
 

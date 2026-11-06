@@ -12,7 +12,8 @@ const outboxSchema = new Schema(
   {
     type: { type: String, enum: OUTBOX_TYPES, required: true },
     enquiryId: { type: Schema.Types.ObjectId, ref: 'Enquiry', required: true, index: true },
-    status: { type: String, enum: ['pending', 'sending', 'sent', 'failed'], default: 'pending' },
+    /** "skipped": there was nobody to send it to (no notification addresses configured). */
+    status: { type: String, enum: ['pending', 'sending', 'sent', 'failed', 'skipped'], default: 'pending' },
     attempts: { type: Number, default: 0 },
     nextAttemptAt: { type: Date, default: () => new Date() },
     lockedAt: { type: Date },
@@ -30,7 +31,7 @@ export interface OutboxDoc {
   _id: Types.ObjectId;
   type: OutboxType;
   enquiryId: Types.ObjectId;
-  status: 'pending' | 'sending' | 'sent' | 'failed';
+  status: 'pending' | 'sending' | 'sent' | 'failed' | 'skipped';
   attempts: number;
   nextAttemptAt: Date;
 }
