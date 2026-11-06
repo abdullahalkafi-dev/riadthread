@@ -57,7 +57,7 @@ export const productInput = z.object({
   status: z.enum(PRODUCT_STATUSES).default('draft'),
   order: z.number().int().min(0).max(100000).default(0),
   featured: z.boolean().default(false),
-  isNew: z.boolean().default(false),
+  newArrival: z.boolean().default(false),
   summary: z.string().trim().max(400).default(''),
   descriptionHtml: z.string().max(50000).default(''),
   specs: z
