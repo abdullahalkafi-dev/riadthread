@@ -1,0 +1,25 @@
+# dependencies and build output
+node_modules/
+dist/
+.turbo/
+coverage/
+*.tsbuildinfo
+
+# secrets and local environment
+.env
+.env.*
+!.env.example
+
+# logs and temp
+*.log
+tmp/
+.DS_Store
+
+# local-only material: specs, design explorations and raw design files
+# stay on this machine and are never pushed
+docs/
+designs/
+
+# the only markdown file in the repository is the root README
+*.md
+!/README.md
