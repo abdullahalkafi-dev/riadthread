@@ -292,6 +292,12 @@ describe('the lead pipeline', () => {
     expect(follow.body.data.followUpAt).toMatch(/^2026-12-01/);
     const done = await admin.patch(`/api/v1/admin/enquiries/${id}/status`).send({ status: 'confirmed' });
     expect(done.body.data.status).toBe('confirmed');
+    const confirmedAt = done.body.data.confirmedAt as string;
+    expect(confirmedAt).toBeTruthy();
+    // A later note must not move the confirmation date.
+    await new Promise((r) => setTimeout(r, 20));
+    const later = await admin.post(`/api/v1/admin/enquiries/${id}/notes`).send({ text: 'Invoice sent' });
+    expect(later.body.data.confirmedAt).toBe(confirmedAt);
     expect(done.body.data.activity.map((a: { text: string }) => a.text)).toEqual(
       expect.arrayContaining(['Status changed to Contacted', 'Note added', 'Status changed to Confirmed']),
     );

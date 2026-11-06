@@ -317,7 +317,8 @@ async function mutate(id: string, update: Record<string, unknown>) {
 
 export const updateStatus = (id: string, status: EnquiryStatus) =>
   mutate(id, {
-    $set: { status, unread: false },
+    // confirmedAt drives "confirmed this month", so later edits to the lead never move it.
+    $set: { status, unread: false, confirmedAt: status === 'confirmed' ? new Date() : null },
     $push: { activity: { type: 'status', text: `Status changed to ${ENQUIRY_STATUS_LABELS[status]}`, at: new Date() } },
   });
 

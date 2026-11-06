@@ -20,7 +20,7 @@ export const getOverview = () =>
 
     const [byStatus, confirmedThisMonth, hotOpen, attention, latest, perDay, topProducts] = await Promise.all([
       Enquiry.aggregate<{ _id: string; n: number }>([{ $group: { _id: '$status', n: { $sum: 1 } } }]),
-      Enquiry.countDocuments({ status: 'confirmed', updatedAt: { $gte: startOfMonth } }),
+      Enquiry.countDocuments({ status: 'confirmed', confirmedAt: { $gte: startOfMonth } }),
       Enquiry.countDocuments({ 'score.level': 'hot', status: { $in: OPEN } } as Record<string, unknown>),
       // New enquiries first, then anything whose follow-up date has arrived.
       Enquiry.find({ $or: [{ status: 'new' }, { status: { $in: OPEN }, followUpAt: { $lte: endOfToday } }] } as Record<string, unknown>)

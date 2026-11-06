@@ -76,6 +76,8 @@ const enquirySchema = new Schema(
     },
 
     status: { type: String, enum: ENQUIRY_STATUSES, default: 'new' },
+    /** When the lead was marked Confirmed; cleared if it moves to another status. */
+    confirmedAt: { type: Date, default: null },
     unread: { type: Boolean, default: true },
     followUpAt: { type: Date, default: null },
     notes: {
@@ -97,6 +99,7 @@ enquirySchema.index({ unread: 1 });
 enquirySchema.index({ followUpAt: 1 });
 enquirySchema.index({ 'items.productId': 1 });
 enquirySchema.index({ 'score.level': 1 });
+enquirySchema.index({ confirmedAt: -1 });
 
 /** Plain shape of a stored enquiry (what .lean() returns). */
 export interface EnquiryDoc {
@@ -132,6 +135,7 @@ export interface EnquiryDoc {
   consent?: { analytics?: boolean; policyVersion?: string };
   score?: { rule?: number; level?: 'hot' | 'warm' | 'cold'; factors?: string[] };
   status: 'new' | 'contacted' | 'discussion' | 'quote' | 'confirmed' | 'lost' | 'spam';
+  confirmedAt?: Date | null;
   unread: boolean;
   followUpAt: Date | null;
   notes: Array<{ _id?: Types.ObjectId; text: string; authorId?: Types.ObjectId; authorName?: string; at: Date }>;

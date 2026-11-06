@@ -14,6 +14,7 @@ export function toListDto(e: EnquiryDoc) {
     thumbs: e.thumbs ?? [],
     source: e.source?.channel ?? null,
     followUpAt: e.followUpAt ?? null,
+    confirmedAt: e.confirmedAt ?? null,
     emailState: e.email,
     createdAt: e.createdAt,
   };
