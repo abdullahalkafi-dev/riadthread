@@ -63,11 +63,13 @@ export const productInput = z.object({
   specs: z
     .object({
       fabric: z.string().trim().max(80).default(''),
+      /** One word used by the catalogue Fabric filter, e.g. Chiffon. Derived from fabric when empty. */
+      fabricType: z.string().trim().max(40).default(''),
       origin: z.string().trim().max(80).default('Morocco'),
       care: z.string().trim().max(200).default(''),
       fit: z.string().trim().max(200).default(''),
     })
-    .default({ fabric: '', origin: 'Morocco', care: '', fit: '' }),
+    .default({ fabric: '', fabricType: '', origin: 'Morocco', care: '', fit: '' }),
   wholesale: z
     .object({
       moq: z.number().int().min(1).max(100000).default(12),
