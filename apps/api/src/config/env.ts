@@ -65,6 +65,11 @@ const schema = z.object({
   /** Server-to-server call that refreshes the website after a publish. */
   WEB_REVALIDATE_URL: z.string().url().optional(),
   REVALIDATE_SECRET: z.string().optional(),
+  /**
+   * Sent by the web app's server as "x-internal-key" so its calls are not
+   * rate-limited as if every visitor were one person. Never sent to browsers.
+   */
+  INTERNAL_API_SECRET: z.string().min(32).optional(),
 });
 
 export type Env = z.infer<typeof schema>;

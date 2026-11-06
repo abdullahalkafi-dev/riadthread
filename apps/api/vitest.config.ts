@@ -11,6 +11,7 @@ export default defineConfig({
       JWT_ACCESS_SECRET: 'test-access-secret-test-access-secret-0000',
       JWT_REFRESH_SECRET: 'test-refresh-secret-test-refresh-secret-000',
       MONGODB_URI: 'mongodb://127.0.0.1:27017/unused-in-unit-tests',
+      INTERNAL_API_SECRET: 'test-internal-secret-test-internal-secret-00',
     },
   },
 });
