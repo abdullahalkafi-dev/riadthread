@@ -32,12 +32,14 @@ const schema = z.object({
   REDIS_CACHE_URL: z.string().optional(),
   REDIS_QUEUE_URL: z.string().optional(),
 
-  MINIO_ENDPOINT: z.string().url().default('http://localhost:9000'),
-  MINIO_ACCESS_KEY: z.string().default('riadthreads'),
-  MINIO_SECRET_KEY: z.string().default('riadthreads-secret'),
-  MINIO_BUCKET_PRIVATE: z.string().default('riad-private'),
-  MINIO_BUCKET_PUBLIC: z.string().default('riad-public'),
-  /** Base path the browser uses for public media (Caddy or the dev server proxies it to MinIO). */
+  /** Any S3-compatible service: SeaweedFS locally and on the VPS, or R2 / S3. */
+  S3_ENDPOINT: z.string().url().default('http://localhost:8333'),
+  S3_REGION: z.string().default('us-east-1'),
+  S3_ACCESS_KEY: z.string().default('riadthreads'),
+  S3_SECRET_KEY: z.string().default('riadthreads-secret'),
+  S3_BUCKET_PRIVATE: z.string().default('riad-private'),
+  S3_BUCKET_PUBLIC: z.string().default('riad-public'),
+  /** Base path the browser uses for public media (Caddy or the dev server proxies it to the public bucket). */
   MEDIA_BASE_URL: z.string().default('/media'),
 
   /** e.g. smtp://user:pass@host:587. Without it, e-mails are written to the log. */

@@ -1,7 +1,7 @@
 import { resolve } from 'node:path';
 import { defineConfig } from 'vitest/config';
 
-// Integration tests run against the real test database and MinIO from .env.
+// Integration tests run against the real test database and object storage from .env.
 process.loadEnvFile(resolve(import.meta.dirname, '../../.env'));
 // No queue Redis: jobs run inline, so tests do not need a worker process.
 // No cache Redis: every read hits the database, so queries can be counted.

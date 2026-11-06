@@ -25,7 +25,7 @@ docker/       Dockerfile for the API and worker
 ```
 
 - **Database:** MongoDB Atlas (any MongoDB 6+ replica set works, since enquiries are written in a transaction).
-- **Object storage:** MinIO (any S3-compatible service). Originals stay in a private bucket; processed images are served from a public one.
+- **Object storage:** SeaweedFS (any S3-compatible service works: R2, S3). Originals stay in a private bucket; processed images are served from a public one.
 - **Redis:** two separate instances. The *cache* may evict keys. The *queue* is persistent and never evicts; it also holds rate-limit counters.
 - **Background work:** media processing and e-mail run in the worker. E-mails are also recorded in MongoDB, and a sweeper re-queues anything left pending, so a Redis restart cannot lose a notification.
 
@@ -33,7 +33,7 @@ docker/       Dockerfile for the API and worker
 
 - Node.js 22 or newer
 - pnpm 12 (`npm install -g pnpm`)
-- Docker (for local Redis and MinIO)
+- Docker (for local Redis and SeaweedFS)
 - A MongoDB connection string (Atlas)
 
 ## Getting started
@@ -42,7 +42,7 @@ docker/       Dockerfile for the API and worker
 # 1. Configure
 cp .env.example .env        # then fill in MONGODB_URI, the JWT secrets and ADMIN_* values
 
-# 2. Start Redis (cache + queue) and MinIO
+# 2. Start Redis (cache + queue) and SeaweedFS
 pnpm infra:up
 
 # 3. Install
@@ -71,9 +71,9 @@ The API also creates the admin on start-up when `ADMIN_EMAIL` and `ADMIN_PASSWOR
 | `pnpm build` | Bundle the API and worker |
 | `pnpm typecheck` | Strict TypeScript check across the workspace |
 | `pnpm test` | Unit tests |
-| `pnpm --filter @riad/api test:int` | Integration tests against the configured test database and MinIO |
+| `pnpm --filter @riad/api test:int` | Integration tests against the configured test database and storage |
 | `pnpm seed:admin` / `pnpm seed:demo` | Seed the admin account / a demo catalogue |
-| `pnpm infra:up` / `pnpm infra:down` | Start or stop local Redis and MinIO |
+| `pnpm infra:up` / `pnpm infra:down` | Start or stop local Redis and SeaweedFS |
 
 Integration tests create their own data under a unique prefix and remove it afterwards. Point `MONGODB_URI` at a **test** database, never production.
 
@@ -111,9 +111,11 @@ The target is a single Ubuntu VPS running Docker Compose behind Caddy, with Mong
 
 For a staging site without a domain, set `SITE_URL` to the server address and `NOINDEX=true` so search engines ignore it.
 
-## Notes on MinIO
+## Notes on storage
 
-The official `minio/minio` image is no longer published. The local compose file defaults to a compatible community image and reads it from `MINIO_IMAGE`, so any S3-compatible service can be used instead.
+Media lives in SeaweedFS, reached through the standard S3 API on port 8333. The API only uses plain S3 calls, so Cloudflare R2 or AWS S3 can replace it by changing the `S3_*` variables.
+
+SeaweedFS does not use bucket policies for anonymous access. Public read on the public bucket is granted in its identity file (`docker/seaweedfs/s3.dev.json` locally): anonymous visitors may read single objects there, but cannot list buckets, write, or reach the private bucket. The dev file holds development keys only; production needs its own file with fresh keys.
 
 ## Security
 

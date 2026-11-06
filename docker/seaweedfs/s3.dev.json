@@ -1,0 +1,13 @@
+{
+  "identities": [
+    {
+      "name": "riadthreads",
+      "credentials": [{ "accessKey": "riadthreads", "secretKey": "riadthreads-secret" }],
+      "actions": ["Admin", "Read", "List", "Tagging", "Write"]
+    },
+    {
+      "name": "anonymous",
+      "actions": ["Read:riad-public"]
+    }
+  ]
+}
