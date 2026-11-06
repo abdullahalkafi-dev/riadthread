@@ -2,6 +2,8 @@ import { createApp } from './app';
 import { connectDb, disconnectDb } from './config/db';
 import { env } from './config/env';
 import { logger } from './config/logger';
+import { closeQueues } from './lib/queue';
+import { closeRedis } from './lib/redis';
 import { seedAdminIfMissing } from './modules/user/user.service';
 
 async function main() {
@@ -16,6 +18,8 @@ async function main() {
   const shutdown = async (signal: string) => {
     logger.info(`${signal} received, shutting down`);
     server.close(async () => {
+      await closeQueues();
+      await closeRedis();
       await disconnectDb();
       process.exit(0);
     });

@@ -1,12 +1,9 @@
-import { rateLimit, type Options, type Store } from 'express-rate-limit';
+import { rateLimit, type Options } from 'express-rate-limit';
+import { RedisStore } from 'rate-limit-redis';
+import { queueRedis } from '../lib/redis';
 import { AppError } from '../utils/AppError';
 
-/** Set once at start-up when a shared (Redis) store is available. */
-let sharedStoreFactory: ((prefix: string) => Store) | null = null;
-export function useSharedRateLimitStore(factory: (prefix: string) => Store) {
-  sharedStoreFactory = factory;
-}
-
+/** Counters live in Redis when available, so limits hold across restarts and instances. */
 function limiter(name: string, opts: Pick<Options, 'windowMs' | 'limit'> & { message?: string }) {
   return rateLimit({
     windowMs: opts.windowMs,
@@ -15,13 +12,21 @@ function limiter(name: string, opts: Pick<Options, 'windowMs' | 'limit'> & { mes
     legacyHeaders: false,
     // If the shared store is unreachable we prefer to serve the request.
     passOnStoreError: true,
-    ...(sharedStoreFactory ? { store: sharedStoreFactory(name) } : {}),
+    ...(queueRedis
+      ? {
+          store: new RedisStore({
+            prefix: `rl:${name}:`,
+            sendCommand: (command: string, ...args: string[]) =>
+              queueRedis!.call(command, ...args) as Promise<never>,
+          }),
+        }
+      : {}),
     handler: (_req, _res, next) =>
       next(new AppError(429, opts.message ?? 'Too many requests. Please wait a moment and try again')),
   });
 }
 
-/** Builders, so the shared store (if any) is picked up at app creation time. */
+/** Builders, so each route gets its own counter. */
 export const limiters = {
   api: () => limiter('api', { windowMs: 60_000, limit: 600 }),
   login: () =>

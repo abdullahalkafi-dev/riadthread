@@ -6,6 +6,7 @@ import mongoose from 'mongoose';
 import { pinoHttp } from 'pino-http';
 import { allowedOrigins, env } from './config/env';
 import { logger } from './config/logger';
+import { cacheRedis, queueRedis } from './lib/redis';
 import { errorHandler, notFound } from './middlewares/errorHandler';
 import { limiters } from './middlewares/rateLimit';
 import { sanitizeBody } from './middlewares/sanitize';
@@ -45,7 +46,12 @@ export function createApp() {
   // Liveness and readiness: "container started" is not enough evidence.
   app.get('/api/health', (_req, res) => {
     const dbReady = mongoose.connection.readyState === 1;
-    res.status(dbReady ? 200 : 503).json({ status: dbReady ? 'ok' : 'degraded', db: dbReady });
+    // Redis is an accelerator, not a dependency: an outage is reported but is not fatal.
+    const redis = {
+      cache: cacheRedis ? cacheRedis.status === 'ready' : null,
+      queue: queueRedis ? queueRedis.status === 'ready' : null,
+    };
+    res.status(dbReady ? 200 : 503).json({ status: dbReady ? 'ok' : 'degraded', db: dbReady, redis });
   });
 
   app.use('/api/v1', limiters.api(), apiRouter);
