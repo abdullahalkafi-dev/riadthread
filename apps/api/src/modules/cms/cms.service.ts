@@ -49,7 +49,7 @@ export async function saveBlock(key: string, input: { visible?: boolean | undefi
   await ContentBlock.findOneAndUpdate(
     { type: 'block', key },
     { $set: { data: parsed.data, mediaRefs, updatedBy: userId, ...(input.visible !== undefined ? { visible: input.visible } : {}) } },
-    { upsert: true, new: true },
+    { upsert: true, returnDocument: 'after' },
   );
   await afterChange();
   return (await listBlocks()).find((b) => b.key === key)!;

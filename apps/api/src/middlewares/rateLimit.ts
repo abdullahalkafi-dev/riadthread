@@ -1,5 +1,6 @@
 import { rateLimit, type Options } from 'express-rate-limit';
 import { RedisStore } from 'rate-limit-redis';
+import { env } from '../config/env';
 import { queueRedis } from '../lib/redis';
 import { AppError } from '../utils/AppError';
 
@@ -7,7 +8,8 @@ import { AppError } from '../utils/AppError';
 function limiter(name: string, opts: Pick<Options, 'windowMs' | 'limit'> & { message?: string }) {
   return rateLimit({
     windowMs: opts.windowMs,
-    limit: opts.limit,
+    // Automated tests submit far more than a person would; real limits apply everywhere else.
+    limit: env.NODE_ENV === 'test' ? 100_000 : opts.limit,
     standardHeaders: 'draft-7',
     legacyHeaders: false,
     // If the shared store is unreachable we prefer to serve the request.

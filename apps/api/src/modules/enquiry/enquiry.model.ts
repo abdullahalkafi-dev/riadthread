@@ -1,4 +1,4 @@
-import { model, Schema, type InferSchemaType } from 'mongoose';
+import { model, Schema, type Types } from 'mongoose';
 import { BUSINESS_TYPES, ENQUIRY_KINDS, ENQUIRY_STATUSES, ENTRY_POINTS, LEAD_LEVELS, PREFERRED_CONTACT } from '@riad/shared';
 
 const itemSchema = new Schema(
@@ -13,6 +13,12 @@ const itemSchema = new Schema(
     qty: { type: Number, required: true },
     thumb: { type: String },
   },
+  { _id: false },
+);
+
+// Declared as its own schema because a field called 'type' would otherwise be read as the type declaration.
+const activitySchema = new Schema(
+  { type: { type: String }, text: { type: String }, at: { type: Date, default: Date.now } },
   { _id: false },
 );
 
@@ -76,7 +82,7 @@ const enquirySchema = new Schema(
       type: [{ text: { type: String, required: true }, authorId: Schema.Types.ObjectId, authorName: String, at: { type: Date, default: Date.now } }],
       default: [],
     },
-    activity: { type: [{ _id: false, type: String, text: String, at: { type: Date, default: Date.now } }], default: [] },
+    activity: { type: [activitySchema], default: [] },
     email: {
       confirmation: { type: String, enum: ['pending', 'sent', 'failed', 'skipped'], default: 'pending' },
       notification: { type: String, enum: ['pending', 'sent', 'failed', 'skipped'], default: 'pending' },
@@ -92,5 +98,46 @@ enquirySchema.index({ followUpAt: 1 });
 enquirySchema.index({ 'items.productId': 1 });
 enquirySchema.index({ 'score.level': 1 });
 
-export type EnquiryDoc = InferSchemaType<typeof enquirySchema> & { _id: import('mongoose').Types.ObjectId };
+/** Plain shape of a stored enquiry (what .lean() returns). */
+export interface EnquiryDoc {
+  _id: Types.ObjectId;
+  ref: string;
+  submissionKey: string;
+  payloadHash: string;
+  kind: 'product' | 'general' | 'line_sheet';
+  contact: { name: string; business?: string; email: string; phone?: string; type?: string; city?: string; website?: string };
+  message?: string;
+  preferredContact?: string;
+  deliveryBy?: string;
+  estimatedQty?: number;
+  items: Array<{
+    productId: Types.ObjectId;
+    name: string;
+    code: string;
+    slug: string;
+    colour?: string;
+    sizes: Array<{ label?: string; qty?: number }>;
+    qty: number;
+    thumb?: string;
+  }>;
+  itemCount: number;
+  qtyTotal: number;
+  thumbs: string[];
+  entryPoint?: string;
+  pageUrl?: string;
+  visitorId?: string;
+  sessionId?: string;
+  journey?: Array<{ t?: string; m?: string; k?: string; at?: number }>;
+  source?: { channel?: string; medium?: string; campaign?: string; content?: string; term?: string; landingPath?: string; referrerOrigin?: string };
+  consent?: { analytics?: boolean; policyVersion?: string };
+  score?: { rule?: number; level?: 'hot' | 'warm' | 'cold'; factors?: string[] };
+  status: 'new' | 'contacted' | 'discussion' | 'quote' | 'confirmed' | 'lost' | 'spam';
+  unread: boolean;
+  followUpAt: Date | null;
+  notes: Array<{ _id?: Types.ObjectId; text: string; authorId?: Types.ObjectId; authorName?: string; at: Date }>;
+  activity: Array<{ type?: string; text?: string; at?: Date }>;
+  email?: { confirmation?: string; notification?: string };
+  createdAt: Date;
+  updatedAt: Date;
+}
 export const Enquiry = model('Enquiry', enquirySchema);

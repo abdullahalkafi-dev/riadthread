@@ -27,7 +27,7 @@ async function load(): Promise<Plain> {
 export const getSettings = () => cached(CACHE_TAGS.site, 'settings', 3600, load);
 
 export async function updateSettings(input: SettingsInput) {
-  await Settings.findOneAndUpdate({ key: 'main' }, { $set: input }, { upsert: true, new: true, setDefaultsOnInsert: true });
+  await Settings.findOneAndUpdate({ key: 'main' }, { $set: input }, { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true });
   await invalidate(CACHE_TAGS.site, CACHE_TAGS.catalog);
   void revalidateWeb(['site']);
   return load();
