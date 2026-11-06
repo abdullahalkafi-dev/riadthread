@@ -49,21 +49,43 @@ export async function login(email: string, password: string, userAgent?: string)
   return { user: toPublicUser(user), access, refresh };
 }
 
-/** Rotates the refresh token. Presenting an already-used token revokes the whole family. */
-export async function refresh(token: string, userAgent?: string) {
-  const record = await RefreshToken.findOne({ tokenHash: sha256(token) });
-  if (!record || record.expiresAt < new Date()) throw AppError.unauthorized('Please sign in again');
+/**
+ * A browser often sends two refreshes at once (two tabs, or a page load plus a
+ * background request). The loser of that race presents a token that was
+ * rotated a moment ago; inside this window it is treated as the same sign-in,
+ * not as a stolen token.
+ */
+const REUSE_GRACE_MS = 30_000;
 
-  if (record.revokedAt) {
-    await RefreshToken.updateMany({ family: record.family, revokedAt: null }, { revokedAt: new Date() });
-    throw AppError.unauthorized('Please sign in again');
+/** Rotates the refresh token. Presenting an old token after the grace window revokes the whole family. */
+export async function refresh(token: string, userAgent?: string) {
+  const now = new Date();
+  const tokenHash = sha256(token);
+
+  // Claim the token atomically: only one request can rotate it.
+  let record = await RefreshToken.findOneAndUpdate(
+    { tokenHash, revokedAt: null, expiresAt: { $gt: now } },
+    { $set: { revokedAt: now, rotatedAt: now } },
+    { returnDocument: 'after' },
+  );
+
+  if (!record) {
+    const used = await RefreshToken.findOne({ tokenHash });
+    if (!used || used.expiresAt <= now) throw AppError.unauthorized('Please sign in again');
+    // Grace applies only to a token replaced by rotation, and only while that sign-in is still
+    // live. A logout or password change revokes the live token too, so it is never undone here.
+    const rotatedRecently = !!used.rotatedAt && now.getTime() - used.rotatedAt.getTime() < REUSE_GRACE_MS;
+    const familyLive = rotatedRecently && (await RefreshToken.exists({ family: used.family, revokedAt: null, expiresAt: { $gt: now } }));
+    if (!familyLive) {
+      // A genuinely reused token: assume it was stolen and end every session from that sign-in.
+      await RefreshToken.updateMany({ family: used.family, revokedAt: null }, { revokedAt: now });
+      throw AppError.unauthorized('Please sign in again');
+    }
+    record = used;
   }
 
   const user = await User.findById(record.userId);
   if (!user || !user.isActive) throw AppError.unauthorized('Please sign in again');
-
-  record.revokedAt = new Date();
-  await record.save();
 
   return {
     user: toPublicUser(user),

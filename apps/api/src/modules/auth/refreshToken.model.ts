@@ -9,6 +9,8 @@ const refreshTokenSchema = new Schema(
     family: { type: String, required: true, index: true },
     expiresAt: { type: Date, required: true },
     revokedAt: { type: Date, default: null },
+    /** Set only when the token was replaced by a refresh (not by logout or a password change). */
+    rotatedAt: { type: Date, default: null },
     userAgent: { type: String, maxlength: 300 },
   },
   { timestamps: { createdAt: true, updatedAt: false } },
@@ -24,6 +26,7 @@ export interface RefreshTokenDoc {
   family: string;
   expiresAt: Date;
   revokedAt: Date | null;
+  rotatedAt: Date | null;
 }
 
 export const RefreshToken = model('RefreshToken', refreshTokenSchema);
