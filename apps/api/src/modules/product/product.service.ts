@@ -46,8 +46,11 @@ async function normalise(input: Input, existing?: ProductDoc): Promise<Record<st
     if (!col) throw AppError.badRequest('That collection does not exist', [{ path: 'body.collectionId', message: 'Unknown collection' }]);
   }
 
-  if (input.name !== undefined || input.slug !== undefined) {
-    const base = slugify(input.slug ?? input.name ?? existing?.slug ?? '');
+  // The page address comes from the name only when the product is created. After
+  // that, renaming keeps the address so shared links and search results still
+  // work; it changes only when the slug itself is edited.
+  if (input.slug !== undefined || (!existing && input.name !== undefined)) {
+    const base = slugify(input.slug ?? input.name ?? '');
     if (!base) throw AppError.badRequest('The page address is empty');
     out.slug = await uniqueValue('slug', base, existing ? String(existing._id) : undefined);
   }

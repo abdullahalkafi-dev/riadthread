@@ -115,6 +115,17 @@ describe('product workflow', () => {
     expect(res.body.data.media.map((m: { alt: string }) => m.alt)).toEqual(['Detail', 'Front view']);
   });
 
+  it('keeps the page address when a product is renamed, and changes it only when the slug is edited', async () => {
+    const product = await makeProduct(7);
+    const renamed = await admin.patch(`/api/v1/admin/products/${product.id}`).send({ name: `${TAG} Renamed Djellaba` });
+    expect(renamed.status, JSON.stringify(renamed.body)).toBe(200);
+    expect(renamed.body.data.name).toBe(`${TAG} Renamed Djellaba`);
+    expect(renamed.body.data.slug).toBe(product.slug);
+
+    const moved = await admin.patch(`/api/v1/admin/products/${product.id}`).send({ slug: `${TAG.toLowerCase()}-new-address` });
+    expect(moved.body.data.slug).toBe(`${TAG.toLowerCase()}-new-address`);
+  });
+
   it('does not run extra queries per product on the public list (no N+1)', async () => {
     for (const n of [4, 5, 6]) {
       const p = await makeProduct(n);
