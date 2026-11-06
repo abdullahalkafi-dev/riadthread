@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createEnquirySchema, productInput, publishChecks } from './index';
+import { createEnquirySchema, productInput, productUpdate, publishChecks, taxonomyUpdate } from './index';
 
 const id = 'a'.repeat(24);
 
@@ -62,5 +62,17 @@ describe('publishChecks', () => {
     const checks = publishChecks({ ...ready, media: [{ mediaId: id, alt: '' }] }, () => 'video');
     expect(checks.find((c) => c.key === 'alt')?.ok).toBe(false);
     expect(checks.find((c) => c.key === 'cover')?.ok).toBe(false);
+  });
+});
+
+describe('update schemas', () => {
+  it('only contain the keys that were sent, so a PATCH never resets other fields', () => {
+    expect(productUpdate.parse({ name: 'Renamed' })).toEqual({ name: 'Renamed' });
+    expect(taxonomyUpdate.parse({ isActive: false })).toEqual({ isActive: false });
+  });
+
+  it('still validates the keys that are sent', () => {
+    expect(productUpdate.safeParse({ code: 'x' }).success).toBe(false);
+    expect(productUpdate.safeParse({ status: 'live' }).success).toBe(false);
   });
 });

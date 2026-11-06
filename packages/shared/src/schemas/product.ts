@@ -8,7 +8,7 @@ import {
   PRODUCT_STATUSES,
   STOCK_STATUSES,
 } from '../constants';
-import { objectId, paginationQuery, slugSchema } from './common';
+import { objectId, paginationQuery, partialWithoutDefaults, slugSchema } from './common';
 
 const hex = z.string().regex(/^#[0-9a-fA-F]{6}$/, 'Use a 6-digit hex colour');
 
@@ -106,7 +106,7 @@ export const productInput = z.object({
     })
     .default({ title: '', description: '' }),
 });
-export const productUpdate = productInput.partial();
+export const productUpdate = partialWithoutDefaults(productInput);
 export type ProductInput = z.infer<typeof productInput>;
 
 export const mediaOrderInput = z.object({

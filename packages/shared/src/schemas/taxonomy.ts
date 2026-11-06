@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { objectId, slugSchema } from './common';
+import { objectId, partialWithoutDefaults, slugSchema } from './common';
 
 /** Categories and collections share the same shape. */
 export const taxonomyInput = z.object({
@@ -11,5 +11,5 @@ export const taxonomyInput = z.object({
   isActive: z.boolean().default(true),
   showOnHome: z.boolean().default(false),
 });
-export const taxonomyUpdate = taxonomyInput.partial();
+export const taxonomyUpdate = partialWithoutDefaults(taxonomyInput);
 export type TaxonomyInput = z.infer<typeof taxonomyInput>;
