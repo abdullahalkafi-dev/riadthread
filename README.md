@@ -109,6 +109,8 @@ Everything is under `/api/v1`. Responses use one envelope: `{ success, message, 
 
 The target is a single Ubuntu VPS running Docker Compose behind Caddy, with MongoDB Atlas hosted separately and placed in the same region as the server. `docker/Dockerfile.api` builds the image used by both the API and the worker (`node dist/server.js` or `node dist/worker.js`). Configuration comes entirely from environment variables; see `.env.example`. There is no CI/CD pipeline.
 
+Both containers share one healthcheck: the API answers `/api/health`, and the worker keeps a heartbeat file fresh while it is connected to MongoDB and the queue. The web app's server should send `INTERNAL_API_SECRET` as `x-internal-key` on its API calls, so they are not rate-limited as if every visitor were one person. Run with `NODE_ENV=production` on any public server, staging included.
+
 For a staging site without a domain, set `SITE_URL` to the server address and `NOINDEX=true` so search engines ignore it.
 
 ## Notes on storage
