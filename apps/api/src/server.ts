@@ -2,9 +2,11 @@ import { createApp } from './app';
 import { connectDb, disconnectDb } from './config/db';
 import { env } from './config/env';
 import { logger } from './config/logger';
+import { seedAdminIfMissing } from './modules/user/user.service';
 
 async function main() {
   await connectDb();
+  await seedAdminIfMissing();
   const app = createApp();
   const server = app.listen(env.PORT, () => {
     logger.info(`API listening on port ${env.PORT} (${env.NODE_ENV})`);

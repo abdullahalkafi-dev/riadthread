@@ -1,6 +1,8 @@
 import { Router } from 'express';
+import { accountRouter, authRouter } from '../modules/auth/auth.route';
 
 /** Global router: mounts every module router under /api/v1. */
 export const apiRouter = Router();
 
-// Module routers are mounted here as they are added.
+apiRouter.use('/auth', authRouter);
+apiRouter.use('/admin/account', accountRouter);
