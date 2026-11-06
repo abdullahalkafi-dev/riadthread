@@ -44,7 +44,12 @@ export interface UploadedFile {
  * Validates an upload from its real bytes, stores the original privately and
  * queues processing. The temporary file is always removed.
  */
-export async function createFromUpload(file: UploadedFile, userId: string): Promise<MediaDto> {
+export async function createFromUpload(
+  file: UploadedFile,
+  userId: string,
+  /** Only the demo seed uses this, for placeholder images; real uploads always enforce the size rule. */
+  opts: { allowSmallImages?: boolean } = {},
+): Promise<MediaDto> {
   try {
     const detected = (await fileTypeFromFile(file.path))?.mime ?? sniff(file.path);
     const kind = detected ? kindOf(detected) : null;
@@ -64,7 +69,7 @@ export async function createFromUpload(file: UploadedFile, userId: string): Prom
       } catch {
         throw AppError.unprocessable('That image could not be read. It may be damaged');
       }
-      if (Math.min(dimensions.width, dimensions.height) < UPLOAD_LIMITS.image.minShortSide) {
+      if (!opts.allowSmallImages && Math.min(dimensions.width, dimensions.height) < UPLOAD_LIMITS.image.minShortSide) {
         throw AppError.unprocessable(
           `The image is too small (${dimensions.width}×${dimensions.height}). The shortest side must be at least ${UPLOAD_LIMITS.image.minShortSide}px`,
         );
