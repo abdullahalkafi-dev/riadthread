@@ -4,10 +4,13 @@
   "version": "0.1.0",
   "description": "Riad Threads wholesale showcase, enquiry funnel and admin dashboard",
   "packageManager": "pnpm@12.15.0",
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "dev:api": "pnpm --filter @riad/api dev",
     "dev:worker": "pnpm --filter @riad/api dev:worker",
+    "dev:web": "pnpm --filter @riad/web dev",
     "build": "pnpm -r build",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",

@@ -10,14 +10,14 @@ There is no online checkout. Deals are agreed with the customer directly.
 | --- | --- |
 | `packages/shared`: Zod schemas, types, constants | Done |
 | `apps/api`: REST API and background worker | Done and tested |
-| `apps/web`: public website and `/admin` dashboard | Next |
+| `apps/web`: public website and `/admin` dashboard | Done and tested in a browser |
 
 ## How it is put together
 
 ```
 apps/
   api/        Express 5 + TypeScript API, and the BullMQ worker (same code, second entry point)
-  web/        Next.js site and dashboard (not started yet)
+  web/        Next.js site (server-rendered) and the /admin dashboard
 packages/
   shared/     Validation schemas and types used by both apps
   config/     Shared TypeScript settings
@@ -27,6 +27,7 @@ docker/       Dockerfile for the API and worker
 - **Database:** MongoDB Atlas (any MongoDB 6+ replica set works, since enquiries are written in a transaction).
 - **Object storage:** SeaweedFS (any S3-compatible service works: R2, S3). Originals stay in a private bucket; processed images are served from a public one.
 - **Redis:** two separate instances. The *cache* may evict keys. The *queue* is persistent and never evicts; it also holds rate-limit counters.
+- **Web app:** Next.js App Router with TypeScript and Tailwind. Public pages are rendered on the server from the API and cached with tags, so a publish in the dashboard refreshes exactly the pages it touches. Interactive parts (filters, the enquiry list, the dashboard) use Redux Toolkit and RTK Query. The browser only talks to its own origin: `/api` goes to the API and `/media` to public storage.
 - **Background work:** media processing and e-mail run in the worker. E-mails are also recorded in MongoDB, and a sweeper re-queues anything left pending, so a Redis restart cannot lose a notification.
 
 ## Requirements
@@ -51,15 +52,19 @@ pnpm install
 # 4. Create the first admin account (safe to repeat; it never overwrites an existing admin)
 pnpm seed:admin
 
-# 5. Optional: load a demo catalogue if you have the placeholder images locally
-pnpm seed:demo
+# 5. Optional: load a catalogue from local photos (never run against a production database)
+pnpm seed:catalogue
 
-# 6. Run the API and the worker (two terminals)
+# 6. Configure the web app
+cp apps/web/.env.example apps/web/.env.local
+
+# 7. Run the API, the worker and the web app (three terminals)
 pnpm dev:api
 pnpm dev:worker
+pnpm dev:web
 ```
 
-The API listens on `http://localhost:4000`. `GET /api/health` reports the database and both Redis instances.
+The website is on `http://localhost:3000` and the dashboard on `http://localhost:3000/admin`. The API listens on `http://localhost:4000`. `GET /api/health` reports the database and both Redis instances.
 
 The API also creates the admin on start-up when `ADMIN_EMAIL` and `ADMIN_PASSWORD` are set and no admin exists.
 
@@ -67,12 +72,12 @@ The API also creates the admin on start-up when `ADMIN_EMAIL` and `ADMIN_PASSWOR
 
 | Command | What it does |
 | --- | --- |
-| `pnpm dev:api` / `pnpm dev:worker` | Run the API / worker with reload |
-| `pnpm build` | Bundle the API and worker |
+| `pnpm dev:api` / `pnpm dev:worker` / `pnpm dev:web` | Run the API / worker / web app with reload |
+| `pnpm build` | Build the API, the worker and the web app |
 | `pnpm typecheck` | Strict TypeScript check across the workspace |
 | `pnpm test` | Unit tests |
 | `pnpm --filter @riad/api test:int` | Integration tests against the configured test database and storage |
-| `pnpm seed:admin` / `pnpm seed:demo` | Seed the admin account / a demo catalogue |
+| `pnpm seed:admin` / `pnpm seed:catalogue` | Seed the admin account / a catalogue and home page content from local photos |
 | `pnpm infra:up` / `pnpm infra:down` | Start or stop local Redis and SeaweedFS |
 
 Integration tests create their own data under a unique prefix and remove it afterwards. Point `MONGODB_URI` at a **test** database, never production.
@@ -96,6 +101,14 @@ Everything is under `/api/v1`. Responses use one envelope: `{ success, message, 
 - `/admin/products`, `/admin/categories`, `/admin/collections`, `/admin/media`
 - `/admin/enquiries` (list, detail, status, notes, follow-up, CSV export, e-mail retry)
 - `/admin/analytics/overview`, `/admin/content/*`, `/admin/settings`, `/admin/account`
+
+## Website and dashboard
+
+**Public site:** `/`, `/collections`, `/collections/[slug]`, `/products/[slug]`, `/enquiry`, `/about`, `/contact`, `/faq`, `/privacy`, `/cookies`, `/terms`, plus `sitemap.xml` and `robots.txt`. Unknown products and collections answer a real 404.
+
+**Dashboard (`/admin`):** overview, enquiries (table, board and detail panel with status, notes, follow-up and CSV export), products (list and full editor with a publish checklist), media library, categories, collections, website content (home blocks, section order, text pages) and settings.
+
+The web app reads its own variables from `apps/web/.env.local` (see `apps/web/.env.example`). `INTERNAL_API_SECRET` must match the API so server-side calls skip the per-IP rate limits, and `REVALIDATE_SECRET` must match so the API can refresh pages after a publish (set `WEB_REVALIDATE_URL` in the API to `<site>/api/revalidate`).
 
 ## Design decisions worth knowing
 
