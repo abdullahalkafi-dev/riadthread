@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-sand-50 font-sans text-ink antialiased;
+  }
+  ::selection {
+    background: #e3a487;
+    color: #2b2119;
+  }
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-terracotta-500;
+  }
+}
+
+/* Anything Tailwind utilities cannot express (keyframes, clip-path reveals, pseudo-element patterns)
+   lives in styles/*.css next to the feature that owns it, and is imported by that feature's layout. */
