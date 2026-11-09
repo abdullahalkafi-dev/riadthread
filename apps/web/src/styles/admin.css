@@ -2,7 +2,12 @@
  * Dashboard-only styles that utilities cannot express (patterns, pseudo-element
  * decoration, timeline rails). Everything else is Tailwind in the components.
  * Shared by the dashboard core and the catalogue/content screens.
+ *
+ * Tailwind 3 only honours `@layer components` in a file that also contains the
+ * directive below, so keep it at the top.
  */
+@tailwind components;
+
 @layer components {
   /* Brass and terracotta tile strip under the sidebar brand. */
   .admin-zellige {
@@ -78,5 +83,36 @@
       transform: translateY(12px);
       opacity: 0;
     }
+  }
+}
+
+/* Formatting inside the dashboard's rich-text editor and previews (headings, lists, links). */
+@layer components {
+  .prose-admin h3 {
+    margin: 1rem 0 0.35rem;
+    font-family: var(--font-display), serif;
+    font-size: 1.25rem;
+  }
+  .prose-admin h4 {
+    margin: 0.9rem 0 0.3rem;
+    font-family: var(--font-display), serif;
+    font-size: 1.05rem;
+  }
+  .prose-admin p {
+    margin: 0.4rem 0;
+  }
+  .prose-admin ul {
+    margin: 0.4rem 0;
+    padding-left: 1.25rem;
+    list-style: disc;
+  }
+  .prose-admin ol {
+    margin: 0.4rem 0;
+    padding-left: 1.25rem;
+    list-style: decimal;
+  }
+  .prose-admin a {
+    color: #984a2f;
+    text-decoration: underline;
   }
 }
