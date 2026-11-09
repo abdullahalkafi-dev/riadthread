@@ -29,6 +29,7 @@ export const ENTRY_POINTS = [
   'home',
   'line_sheet',
 ] as const;
+export type EntryPoint = (typeof ENTRY_POINTS)[number];
 
 export const BUSINESS_TYPES = [
   'Boutique',
