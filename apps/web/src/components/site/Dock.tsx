@@ -1,5 +1,6 @@
 'use client';
 
+import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { whatsappLink } from '@/lib/contact';
 import { cn } from '@/lib/cn';
@@ -13,6 +14,8 @@ const RING = 131.95;
 /** Floating shortcuts: back to top (with a scroll progress ring), enquiry list, WhatsApp. */
 export function Dock({ settings }: { settings: Pick<PublicSettings, 'whatsapp' | 'business'> }) {
   const dispatch = useSiteDispatch();
+  // On product pages a sticky add-to-enquiry bar sits at the bottom of small screens; keep the dock above it.
+  const onProduct = usePathname().startsWith('/products/');
   const count = useSiteSelector((s) => s.enquiryList.lines.length);
   const [on, setOn] = useState(false);
   const ring = useRef<SVGCircleElement>(null);
@@ -30,7 +33,7 @@ export function Dock({ settings }: { settings: Pick<PublicSettings, 'whatsapp' |
   }, []);
 
   return (
-    <div className={cn('dock fixed bottom-4 right-4 z-50 flex flex-col items-end gap-3 sm:bottom-6 sm:right-6', on && 'is-on')}>
+    <div className={cn('dock fixed bottom-4 right-4 z-50 flex flex-col items-end gap-3 sm:bottom-6 sm:right-6', on && 'is-on', onProduct && 'max-lg:bottom-24')}>
       <button
         type="button"
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
