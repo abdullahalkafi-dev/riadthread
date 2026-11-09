@@ -77,7 +77,7 @@ export function ProductView({ product, whatsappHref }: Props) {
     <>
       <div className="mt-6 grid gap-8 lg:grid-cols-12 lg:gap-14">
         <ProductGallery items={gallery} index={index} onIndex={setIndex} productId={product.id} productName={product.name} badge={product.badge} />
-        <div className="lg:col-span-5">
+        <div className="min-w-0 lg:col-span-5">
           <ProductBuyBox
             product={product}
             colourId={colourId}

@@ -68,7 +68,7 @@ export function ProductGallery({ items, index, onIndex, productId, productName, 
   }
 
   return (
-    <div className="flex flex-col gap-3 lg:col-span-7 lg:flex-row lg:gap-4">
+    <div className="flex min-w-0 flex-col gap-3 lg:col-span-7 lg:flex-row lg:gap-4">
       {count > 1 && (
         <div className="no-scrollbar order-2 flex gap-3 overflow-x-auto lg:order-1 lg:max-h-[760px] lg:w-[88px] lg:flex-col lg:overflow-y-auto">
           {items.map((item, i) => (
