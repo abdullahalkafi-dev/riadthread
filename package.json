@@ -13,6 +13,7 @@
     "test": "pnpm -r test",
     "seed:admin": "pnpm --filter @riad/api seed:admin",
     "seed:demo": "pnpm --filter @riad/api seed:demo",
+    "seed:catalogue": "pnpm --filter @riad/api seed:catalogue",
     "infra:up": "docker compose -f docker-compose.dev.yml up -d",
     "infra:down": "docker compose -f docker-compose.dev.yml down"
   },

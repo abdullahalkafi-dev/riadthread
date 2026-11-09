@@ -14,6 +14,7 @@
     "test": "vitest run --passWithNoTests",
     "seed:admin": "tsx --env-file=../../.env src/scripts/seed-admin.ts",
     "seed:demo": "tsx --env-file=../../.env src/scripts/seed-demo.ts",
+    "seed:catalogue": "tsx --env-file=../../.env src/scripts/seed-catalogue.ts",
     "test:int": "vitest run --config vitest.int.config.ts"
   },
   "dependencies": {
