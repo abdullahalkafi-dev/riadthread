@@ -5,6 +5,7 @@ import { ShowcaseSlider, type ShowcaseTab } from './ShowcaseSlider';
 
 const PER_TAB = 12;
 const MAX_COLLECTION_TABS = 3;
+const BUILT_IN_TABS = ['new arrivals', 'bestsellers'];
 
 interface Props {
   /** The catalogue in display order, already fetched by the page. */
@@ -19,7 +20,10 @@ interface Props {
  * Empty tabs are dropped, so a young catalogue still looks complete.
  */
 export async function Showcase({ products, total, collections }: Props) {
-  const shown = collections.filter((c) => c.isActive && c.showOnHome && c.publishedCount > 0).slice(0, MAX_COLLECTION_TABS);
+  // A collection called "New arrivals" would repeat the built-in tab of the same name.
+  const shown = collections
+    .filter((c) => c.isActive && c.showOnHome && c.publishedCount > 0 && !BUILT_IN_TABS.includes(c.name.trim().toLowerCase()))
+    .slice(0, MAX_COLLECTION_TABS);
   const [newest, ...byCollection] = await Promise.all([
     getProducts({ sort: 'newest', limit: PER_TAB }),
     ...shown.map((c) => getProducts({ collection: c.slug, limit: PER_TAB })),

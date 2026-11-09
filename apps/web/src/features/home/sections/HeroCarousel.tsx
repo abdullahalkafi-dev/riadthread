@@ -68,7 +68,13 @@ export function HeroCarousel({ slides }: { slides: HeroSlideView[] }) {
 
   const slide = slides[index];
   if (!slide) return null;
-  const word = slide.title.split(' ')[0] ?? '';
+  // The outline word peeks out on both sides of the arch, so it needs to be long enough to
+  // do that and short enough to fit the stage: take the first word between 6 and 9 letters.
+  const word =
+    slide.title
+      .split(' ')
+      .map((w) => w.replace(/[^\p{L}]/gu, ''))
+      .find((w) => w.length >= 6 && w.length <= 9) ?? '';
 
   const onProgressEnd = (e: AnimationEvent) => {
     if (e.animationName === 'rt-hfill') go(index + 1);

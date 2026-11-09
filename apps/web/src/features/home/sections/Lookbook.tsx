@@ -22,10 +22,19 @@ export function Lookbook({ data, images }: Props) {
   const heading = data.heading || 'Shop the look';
   const figure = (m: Media | undefined, shape: string, i: number) =>
     m && (
-      <figure key={m.id} data-delay={String(i % 3)} className={cn('reveal relative bg-sand-200', shape)}>
-        <ResponsiveImage media={m} alt={`${heading}, look ${i + 1}`} sizes="(min-width:1024px) 33vw, 100vw" fill className="rounded-[inherit] object-cover" />
+      <figure key={m.id} data-delay={String(i % 3)} className={cn('reveal relative overflow-hidden bg-sand-200', shape)}>
+        <ResponsiveImage media={m} alt={`${heading}, look ${i + 1}`} sizes="(min-width:1024px) 33vw, 100vw" fill className="object-cover" />
       </figure>
     );
+
+  // Pictures beyond the first four fill rows of three; a short last row stretches so the grid has no hole.
+  const leftover = more.length % 3;
+  const extra = (i: number) => {
+    const last = i === more.length - 1;
+    if (last && leftover === 2) return 'rounded-[20px] aspect-[4/3] lg:col-span-2 lg:aspect-[8/3]';
+    if (last && leftover === 1) return 'rounded-[20px] aspect-[4/3] lg:col-span-3 lg:aspect-[16/5]';
+    return 'rounded-[20px] aspect-[4/3]';
+  };
 
   return (
     <section id="lookbook" aria-labelledby="lookbook-heading" className="mx-auto max-w-[1400px] scroll-mt-24 px-4 py-20 sm:px-6 lg:px-10 lg:py-28">
@@ -47,7 +56,7 @@ export function Lookbook({ data, images }: Props) {
           </div>
         )}
         {figure(d, SHAPES[3]!, 3)}
-        {more.map((m, i) => figure(m, 'rounded-[20px] aspect-[4/3]', i + 4))}
+        {more.map((m, i) => figure(m, extra(i), i + 4))}
       </div>
     </section>
   );
