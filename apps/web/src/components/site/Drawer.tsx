@@ -7,10 +7,17 @@ import type { Drawer as DrawerName } from '@/store/site/ui.slice';
 
 type Side = 'left' | 'right' | 'top';
 
-const CLOSED: Record<Side, string> = {
-  left: 'left-0 top-0 h-full -translate-x-[105%]',
-  right: 'right-0 top-0 h-full translate-x-[105%]',
-  top: 'inset-x-0 top-0 -translate-y-[105%]',
+const POSITION: Record<Side, string> = {
+  left: 'left-0 top-0 h-full',
+  right: 'right-0 top-0 h-full',
+  top: 'inset-x-0 top-0',
+};
+
+/** Where a closed panel waits. It must not be on the element while open: both translate classes would compete. */
+const HIDDEN: Record<Side, string> = {
+  left: '-translate-x-[105%]',
+  right: 'translate-x-[105%]',
+  top: '-translate-y-[105%]',
 };
 
 interface Props {
@@ -39,8 +46,8 @@ export function Drawer({ name, side, label, className, children }: Props) {
       inert={!open}
       className={cn(
         'fixed z-[60] transition-transform duration-[450ms] ease-[cubic-bezier(.2,.7,.2,1)] will-change-transform',
-        CLOSED[side],
-        open && 'translate-x-0 translate-y-0',
+        POSITION[side],
+        open ? 'translate-x-0 translate-y-0' : HIDDEN[side],
         className,
       )}
     >
