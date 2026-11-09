@@ -82,7 +82,7 @@ export function BasicsTab({ draft, update, errors, saved }: BasicsTabProps) {
         </div>
 
         <Field label="Short summary" htmlFor="p-summary" hint={`Shown under the product name and in quick view. ${draft.summary.length}/400`} error={errors.summary}>
-          <Textarea id="p-summary" value={draft.summary} maxLength={400} className="min-h-20" onChange={(e) => update({ summary: e.target.value })} />
+          <Textarea id="p-summary" value={draft.summary} maxLength={400} className="!min-h-20" onChange={(e) => update({ summary: e.target.value })} />
         </Field>
 
         <div className="flex flex-wrap gap-x-7 gap-y-3">

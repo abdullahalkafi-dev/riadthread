@@ -1,4 +1,4 @@
-import { productInput, publishChecks, SIZE_PRESETS, type PublishCheck } from '@riad/shared';
+import { productInput, publishChecks, type PublishCheck } from '@riad/shared';
 import type { ProductCreateBody, ProductPatchBody } from '@/store/admin/productsApi';
 import type { AdminProduct, Media } from '@/types/api';
 
@@ -254,5 +254,3 @@ export const GUIDE_DEFAULTS: Record<string, [string, string, string]> = {
   XL: ['122', '147', '20–22'],
   XXL: ['128', '150', '24–26'],
 };
-
-export const SIZE_PRESET_NAMES = Object.keys(SIZE_PRESETS);

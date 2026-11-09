@@ -40,7 +40,7 @@ function RamadanEditor({ value, onChange, errors }: BlockEditorProps<BlockData<'
         <Input id="ram-heading" value={value.heading} maxLength={120} onChange={(e) => onChange({ ...value, heading: e.target.value })} invalid={!!errors.heading} />
       </Field>
       <Field label="Text" htmlFor="ram-text" error={errors.text}>
-        <Textarea id="ram-text" value={value.text} maxLength={400} className="min-h-[70px]" onChange={(e) => onChange({ ...value, text: e.target.value })} />
+        <Textarea id="ram-text" value={value.text} maxLength={400} className="!min-h-[70px]" onChange={(e) => onChange({ ...value, text: e.target.value })} />
       </Field>
       <div className="grid gap-3.5 sm:grid-cols-2">
         <Field label="Order-by date" htmlFor="ram-order" hint="Retailers should send enquiries before this day.">
@@ -84,7 +84,7 @@ function TitledList<V extends TitledItems>({ value, onChange, errors, noun, max,
       {value.items.map((item, i) => (
         <ItemFrame key={i} noun={noun} index={i} count={value.items.length} onMove={(to) => onChange({ ...value, items: moveItem(value.items, i, to) })} onRemove={() => onChange({ ...value, items: value.items.filter((_, j) => j !== i) })}>
           <Input value={item.title} maxLength={120} aria-label={`Title of ${noun} ${i + 1}`} placeholder="Title" invalid={!!errors[`items.${i}.title`]} onChange={(e) => setItem(i, { title: e.target.value } as Partial<V['items'][number]>)} />
-          <Textarea value={item.text} maxLength={500} aria-label={`Text of ${noun} ${i + 1}`} placeholder="Short text (optional)" className="min-h-[56px]" onChange={(e) => setItem(i, { text: e.target.value } as Partial<V['items'][number]>)} />
+          <Textarea value={item.text} maxLength={500} aria-label={`Text of ${noun} ${i + 1}`} placeholder="Short text (optional)" className="!min-h-[56px]" onChange={(e) => setItem(i, { text: e.target.value } as Partial<V['items'][number]>)} />
         </ItemFrame>
       ))}
       <AddItemButton noun={noun} disabled={value.items.length >= max} onClick={() => onChange({ ...value, items: [...value.items, { title: '', text: '' }] })} />
@@ -119,7 +119,7 @@ function FaqEditor({ value, onChange, errors }: BlockEditorProps<BlockData<'faq'
       {value.items.map((item, i) => (
         <ItemFrame key={i} noun="question" index={i} count={value.items.length} onMove={(to) => onChange({ items: moveItem(value.items, i, to) })} onRemove={() => onChange({ items: value.items.filter((_, j) => j !== i) })}>
           <Input value={item.q} maxLength={200} aria-label={`Question ${i + 1}`} placeholder="Question" invalid={!!errors[`items.${i}.q`]} onChange={(e) => setItem(i, { q: e.target.value })} />
-          <Textarea value={item.a} maxLength={2000} aria-label={`Answer ${i + 1}`} placeholder="Answer" className="min-h-[72px]" onChange={(e) => setItem(i, { a: e.target.value })} />
+          <Textarea value={item.a} maxLength={2000} aria-label={`Answer ${i + 1}`} placeholder="Answer" className="!min-h-[72px]" onChange={(e) => setItem(i, { a: e.target.value })} />
         </ItemFrame>
       ))}
       <AddItemButton noun="question" disabled={value.items.length >= 20} onClick={() => onChange({ items: [...value.items, { q: '', a: '' }] })} />
@@ -138,7 +138,7 @@ function HeritageEditor({ value, onChange, errors }: BlockEditorProps<BlockData<
         <Input id="her-heading" value={value.heading} maxLength={120} onChange={(e) => onChange({ ...value, heading: e.target.value })} invalid={!!errors.heading} />
       </Field>
       <Field label="Story" htmlFor="her-body" error={errors.body}>
-        <Textarea id="her-body" value={value.body} maxLength={2000} className="min-h-[120px]" onChange={(e) => onChange({ ...value, body: e.target.value })} />
+        <Textarea id="her-body" value={value.body} maxLength={2000} className="!min-h-[120px]" onChange={(e) => onChange({ ...value, body: e.target.value })} />
       </Field>
       <div>
         <span className="mb-[5px] block text-[12.5px] font-semibold text-ink-soft">Image</span>

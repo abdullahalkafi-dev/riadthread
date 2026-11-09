@@ -67,7 +67,7 @@ export function MediaLibrary() {
             ))}
           </div>
           <div className="grow" />
-          <Select value={status} onChange={(e) => reset(setStatus)(e.target.value as '' | Media['status'])} aria-label="Status" className="w-auto">
+          <Select value={status} onChange={(e) => reset(setStatus)(e.target.value as '' | Media['status'])} aria-label="Status" className="!w-auto">
             <option value="">Any status</option>
             <option value="ready">Ready</option>
             <option value="processing">Processing</option>

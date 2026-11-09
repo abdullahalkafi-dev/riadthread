@@ -73,10 +73,10 @@ export function WholesaleTab({ draft, update, errors }: TabProps) {
                 {w.tiers.map((t, i) => (
                   <tr key={i}>
                     <td className="px-1.5 py-1">
-                      <Input value={t.range} onChange={(e) => setTier(i, { range: e.target.value })} aria-label={`Tier ${i + 1} quantity range`} placeholder="12 – 47 units" invalid={!!errors[`wholesale.tiers.${i}.range`]} className="py-[7px]" />
+                      <Input value={t.range} onChange={(e) => setTier(i, { range: e.target.value })} aria-label={`Tier ${i + 1} quantity range`} placeholder="12 – 47 units" invalid={!!errors[`wholesale.tiers.${i}.range`]} className="!py-[7px]" />
                     </td>
                     <td className="px-1.5 py-1">
-                      <Input value={t.label} onChange={(e) => setTier(i, { label: e.target.value })} aria-label={`Tier ${i + 1} pricing label`} placeholder="Trade price" invalid={!!errors[`wholesale.tiers.${i}.label`]} className="py-[7px]" />
+                      <Input value={t.label} onChange={(e) => setTier(i, { label: e.target.value })} aria-label={`Tier ${i + 1} pricing label`} placeholder="Trade price" invalid={!!errors[`wholesale.tiers.${i}.label`]} className="!py-[7px]" />
                     </td>
                     <td>
                       <Button size="sm" variant="danger" aria-label={`Remove tier ${i + 1}`} onClick={() => set({ tiers: w.tiers.filter((_, j) => j !== i) })}>

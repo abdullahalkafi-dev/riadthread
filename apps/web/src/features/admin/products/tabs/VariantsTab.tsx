@@ -183,7 +183,7 @@ function SizesCard({ draft, update, errors }: TabProps) {
               addSize();
             }}
           >
-            <Input value={text} onChange={(e) => setText(e.target.value)} placeholder="Add size…" aria-label="New size" className="w-32 py-[7px]" />
+            <Input value={text} onChange={(e) => setText(e.target.value)} placeholder="Add size…" aria-label="New size" className="!w-32 !py-[7px]" />
             <Button size="sm" type="submit">
               Add
             </Button>
@@ -257,7 +257,7 @@ function SizeGuideCard({ draft, update }: TabProps) {
                   <td className="px-2 py-1 font-semibold">{r.size}</td>
                   {(['chest', 'length', 'uk'] as const).map((f) => (
                     <td key={f} className="px-1.5 py-1">
-                      <Input value={r[f]} onChange={(e) => setCell(r.size, f, e.target.value)} aria-label={`${r.size} ${f}`} className="py-[7px]" />
+                      <Input value={r[f]} onChange={(e) => setCell(r.size, f, e.target.value)} aria-label={`${r.size} ${f}`} className="!py-[7px]" />
                     </td>
                   ))}
                 </tr>

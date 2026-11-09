@@ -27,7 +27,7 @@ function HeroEditor({ value, onChange, errors }: BlockEditorProps<BlockData<'her
             <Input id={`slide-title-${i}`} value={slide.title} maxLength={120} onChange={(e) => setSlide(i, { title: e.target.value })} invalid={!!errors[`slides.${i}.title`]} />
           </Field>
           <Field label="Subtitle" htmlFor={`slide-sub-${i}`}>
-            <Textarea id={`slide-sub-${i}`} value={slide.subtitle} maxLength={300} className="min-h-[56px]" onChange={(e) => setSlide(i, { subtitle: e.target.value })} />
+            <Textarea id={`slide-sub-${i}`} value={slide.subtitle} maxLength={300} className="!min-h-[56px]" onChange={(e) => setSlide(i, { subtitle: e.target.value })} />
           </Field>
           <div className="grid gap-2.5 sm:grid-cols-2">
             <Field label="Button text" htmlFor={`slide-cta-text-${i}`}>

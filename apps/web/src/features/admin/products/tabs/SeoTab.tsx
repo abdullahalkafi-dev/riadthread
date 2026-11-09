@@ -33,7 +33,7 @@ export function SeoTab({ draft, update, errors, productId }: SeoTabProps) {
             <Input id="seo-title" value={draft.seo.title} maxLength={120} onChange={(e) => update({ seo: { ...draft.seo, title: e.target.value } })} />
           </Field>
           <Field label="Meta description" htmlFor="seo-desc" hint={`Empty uses the short summary. ${draft.seo.description.length}/300`} error={errors['seo.description']}>
-            <Textarea id="seo-desc" value={draft.seo.description} maxLength={300} className="min-h-[70px]" onChange={(e) => update({ seo: { ...draft.seo, description: e.target.value } })} />
+            <Textarea id="seo-desc" value={draft.seo.description} maxLength={300} className="!min-h-[70px]" onChange={(e) => update({ seo: { ...draft.seo, description: e.target.value } })} />
           </Field>
           <div>
             <span className="mb-[5px] block text-[12.5px] font-semibold text-ink-soft">Google preview</span>

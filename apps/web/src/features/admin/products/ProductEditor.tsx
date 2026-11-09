@@ -142,10 +142,14 @@ export function ProductEditor({ productId }: ProductEditorProps) {
     }
   }
 
-  function adopt(next: AdminProduct) {
+  /**
+   * Takes the server's version as the new baseline. If the owner kept typing while the
+   * request was running, their newer edits stay on screen and still count as unsaved.
+   */
+  function adopt(next: AdminProduct, sent: ProductDraft) {
     const d = toDraft(next);
     setSaved(d);
-    setDraft(d);
+    setDraft((current) => (current === sent ? d : current));
     setErrors({});
   }
 
@@ -162,7 +166,7 @@ export function ProductEditor({ productId }: ProductEditorProps) {
     try {
       if (isNew) {
         const created = await createProduct(createBody(draft)).unwrap();
-        adopt(created);
+        adopt(created, draft);
         toast('Product created as a draft');
         router.replace(`/admin/products/${created.id}`);
         return created;
@@ -170,7 +174,7 @@ export function ProductEditor({ productId }: ProductEditorProps) {
       const patch = patchBody(saved, draft);
       if (Object.keys(patch).length === 0) return product ?? null;
       const updated = await updateProduct({ id: productId!, body: patch }).unwrap();
-      adopt(updated);
+      adopt(updated, draft);
       toast('Saved');
       return updated;
     } catch (err) {

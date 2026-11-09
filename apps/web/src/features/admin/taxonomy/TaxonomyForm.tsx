@@ -111,7 +111,7 @@ export function TaxonomyForm({ kind, item, nextOrder, onSaved, onDeleted }: Taxo
           </Field>
         </div>
         <Field label="Short description" htmlFor="t-desc" hint="Shown on the landing page and in the homepage tile." error={errors.description}>
-          <Textarea id="t-desc" value={draft.description} maxLength={400} className="min-h-[70px]" onChange={(e) => set({ description: e.target.value })} />
+          <Textarea id="t-desc" value={draft.description} maxLength={400} className="!min-h-[70px]" onChange={(e) => set({ description: e.target.value })} />
         </Field>
         <div>
           <span className="mb-[5px] block text-[12.5px] font-semibold text-ink-soft">Banner / tile image</span>

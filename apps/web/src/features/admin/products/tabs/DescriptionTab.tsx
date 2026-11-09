@@ -58,7 +58,7 @@ export function DescriptionTab({ draft, update, errors }: TabProps) {
             </Field>
           </div>
           <Field label="Packing & delivery text" htmlFor="o-ship">
-            <Textarea id="o-ship" value={draft.overrides.shipText} onChange={(e) => setOverrides({ shipText: e.target.value })} className="min-h-[70px]" placeholder="Using the site default text" />
+            <Textarea id="o-ship" value={draft.overrides.shipText} onChange={(e) => setOverrides({ shipText: e.target.value })} className="!min-h-[70px]" placeholder="Using the site default text" />
           </Field>
         </CardBody>
       </Card>

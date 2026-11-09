@@ -147,7 +147,7 @@ export function ProductList() {
             <Icon name="search" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-mute" />
             <Input value={search} onChange={(e) => reset(setSearch)(e.target.value)} placeholder="Search name or code…" aria-label="Search products" className="pl-10" />
           </div>
-          <Select value={categoryId} onChange={(e) => reset(setCategoryId)(e.target.value)} aria-label="Category" className="w-auto">
+          <Select value={categoryId} onChange={(e) => reset(setCategoryId)(e.target.value)} aria-label="Category" className="!w-auto">
             <option value="">All categories</option>
             {categories.data?.map((c) => (
               <option key={c.id} value={c.id}>
@@ -155,7 +155,7 @@ export function ProductList() {
               </option>
             ))}
           </Select>
-          <Select value={collectionId} onChange={(e) => reset(setCollectionId)(e.target.value)} aria-label="Collection" className="w-auto">
+          <Select value={collectionId} onChange={(e) => reset(setCollectionId)(e.target.value)} aria-label="Collection" className="!w-auto">
             <option value="">All collections</option>
             {collections.data?.map((c) => (
               <option key={c.id} value={c.id}>
@@ -163,7 +163,7 @@ export function ProductList() {
               </option>
             ))}
           </Select>
-          <Select value={status} onChange={(e) => reset(setStatus)(e.target.value)} aria-label="Status" className="w-auto">
+          <Select value={status} onChange={(e) => reset(setStatus)(e.target.value)} aria-label="Status" className="!w-auto">
             {STATUS_OPTIONS.map((o) => (
               <option key={o.value} value={o.value}>
                 {o.label}

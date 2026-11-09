@@ -124,13 +124,13 @@ export function MediaTab({ draft, update, errors, colourFilter, onColourFilter }
                     placeholder="Alt text (required)"
                     aria-label={`Alt text for item ${index + 1}`}
                     invalid={!m.alt.trim()}
-                    className="px-2 py-1.5 text-xs"
+                    className="!px-2 !py-1.5 text-xs"
                   />
                   <Select
                     value={m.colourId ?? ''}
                     onChange={(e) => change(index, { colourId: e.target.value || null })}
                     aria-label={`Colour for item ${index + 1}`}
-                    className="px-2 py-1.5 text-xs"
+                    className="!px-2 !py-1.5 text-xs"
                   >
                     <option value="">All colours</option>
                     {draft.colours.map((c) => (

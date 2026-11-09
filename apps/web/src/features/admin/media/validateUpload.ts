@@ -1,17 +1,5 @@
 import { UPLOAD_LIMITS, type MediaType } from '@riad/shared';
 
-/** What the file input and the drop zone accept, grouped by what the media library can store. */
-export const ACCEPT_ATTR = [
-  ...UPLOAD_LIMITS.image.mimes,
-  ...UPLOAD_LIMITS.video.mimes,
-  ...UPLOAD_LIMITS.model.mimes,
-  ...UPLOAD_LIMITS.document.mimes,
-  '.glb',
-].join(',');
-
-export const ACCEPT_IMAGES = UPLOAD_LIMITS.image.mimes.join(',');
-export const ACCEPT_DOCUMENTS = UPLOAD_LIMITS.document.mimes.join(',');
-
 const mb = (bytes: number) => Math.round(bytes / 1024 / 1024);
 
 /** Browsers report no type for .glb files, so the extension decides. */

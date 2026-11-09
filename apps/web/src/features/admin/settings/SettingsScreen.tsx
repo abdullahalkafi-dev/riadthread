@@ -205,7 +205,7 @@ function SettingsForm({ initial }: FormProps) {
                 <Input id="d-price" value={draft.productDefaults.priceLine} onChange={(e) => defaults({ priceLine: e.target.value })} />
               </Field>
               <Field label="Packing & delivery text" htmlFor="d-ship" error={errors['productDefaults.shipText']}>
-                <Textarea id="d-ship" value={draft.productDefaults.shipText} maxLength={1500} className="min-h-[110px]" onChange={(e) => defaults({ shipText: e.target.value })} />
+                <Textarea id="d-ship" value={draft.productDefaults.shipText} maxLength={1500} className="!min-h-[110px]" onChange={(e) => defaults({ shipText: e.target.value })} />
               </Field>
               <Field label="Wholesale tiers footnote" htmlFor="d-foot" error={errors['productDefaults.tiersFootnote']}>
                 <Input id="d-foot" value={draft.productDefaults.tiersFootnote} onChange={(e) => defaults({ tiersFootnote: e.target.value })} />
