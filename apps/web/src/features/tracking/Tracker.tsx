@@ -82,6 +82,11 @@ export function Tracker() {
     };
   }, [accepted, journeyOn]);
 
+  // Without consent nothing may linger: erase any journey left from an earlier choice.
+  useEffect(() => {
+    if (consent.hydrated && !accepted) journey.forget();
+  }, [consent.hydrated, accepted]);
+
   // One page view and one journey step per page, with the time spent when leaving it.
   useEffect(() => {
     if (!accepted) return;

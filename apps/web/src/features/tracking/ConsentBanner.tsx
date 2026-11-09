@@ -21,7 +21,7 @@ export function ConsentBanner() {
     <div
       role="dialog"
       aria-label="Analytics choice"
-      className="fixed inset-x-3 bottom-3 z-[65] mx-auto max-w-xl rounded-2xl bg-sand-50 p-5 shadow-[0_30px_60px_-20px_rgba(43,33,25,.45)] ring-1 ring-ink/10 sm:inset-x-auto sm:bottom-5 sm:left-5 sm:mx-0"
+      className="fixed inset-x-3 bottom-3 z-[65] mx-auto max-w-md rounded-2xl bg-sand-50 p-5 shadow-[0_30px_60px_-20px_rgba(43,33,25,.45)] ring-1 ring-ink/10 sm:inset-x-auto sm:bottom-5 sm:left-5 sm:mx-0"
     >
       <p className="font-display text-xl leading-tight">Help us improve the site?</p>
       <p className="mt-2 text-sm leading-relaxed text-ink-soft">

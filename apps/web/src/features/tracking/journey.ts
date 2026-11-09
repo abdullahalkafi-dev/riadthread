@@ -19,6 +19,29 @@ let steps: JourneyStep[] = [];
 let enteredAt = 0;
 const notes: string[] = [];
 
+const KEY = 'rt:journey:v1';
+
+/** Kept for this browser session only, so a full page load does not forget where the visit began. */
+function persist() {
+  try {
+    window.sessionStorage.setItem(KEY, JSON.stringify({ steps, enteredAt, notes }));
+  } catch {
+    /* session storage unavailable: the journey lives in memory only */
+  }
+}
+
+function restore() {
+  try {
+    const saved = JSON.parse(window.sessionStorage.getItem(KEY) ?? 'null') as { steps?: JourneyStep[]; enteredAt?: number; notes?: string[] } | null;
+    if (!saved?.steps?.length) return;
+    steps = saved.steps.slice(-LIMITS.journeySteps);
+    enteredAt = saved.enteredAt ?? Date.now();
+    notes.splice(0, notes.length, ...(saved.notes ?? []));
+  } catch {
+    /* an unreadable saved journey is simply ignored */
+  }
+}
+
 export function formatDuration(ms: number): string {
   const seconds = Math.max(1, Math.round(ms / 1000));
   if (seconds < 60) return `${seconds}s`;
@@ -38,12 +61,20 @@ function closeCurrent(now: number) {
 }
 
 export const journey = {
-  /** Turning it off also forgets everything recorded so far. */
+  /** Starts or pauses recording. Pausing keeps what was recorded; use forget() to erase it. */
   setEnabled(value: boolean) {
     enabled = value;
-    if (!value) {
-      steps = [];
-      notes.length = 0;
+    if (value && steps.length === 0) restore();
+  },
+
+  /** Erases the journey from memory and from this browser session, e.g. when tracking is declined. */
+  forget() {
+    steps = [];
+    notes.length = 0;
+    try {
+      window.sessionStorage.removeItem(KEY);
+    } catch {
+      /* nothing saved to remove */
     }
   },
 
@@ -53,18 +84,25 @@ export const journey = {
     const now = Date.now();
     closeCurrent(now);
     steps.push({ t: label.slice(0, 120), m: '', at: now, ...(steps.length === 0 ? { k: 'start' as const } : {}) });
+    // Memory stays bounded however long the visit: keep the start and the most recent steps.
+    if (steps.length > LIMITS.journeySteps * 2) steps = [steps[0]!, ...steps.slice(-LIMITS.journeySteps)];
     enteredAt = now;
+    persist();
   },
 
   /** Renames the current step, used once a page knows its real title (e.g. a product name). */
   relabel(label: string) {
     const last = steps[steps.length - 1];
-    if (enabled && last) last.t = label.slice(0, 120);
+    if (!enabled || !last) return;
+    last.t = label.slice(0, 120);
+    persist();
   },
 
   /** Adds a short remark to the current step, e.g. "watched video". */
   note(text: string) {
-    if (enabled && !notes.includes(text)) notes.push(text);
+    if (!enabled || notes.includes(text)) return;
+    notes.push(text);
+    persist();
   },
 
   /** A copy that is safe to send: at most 30 steps, the last one closed with its time so far. */

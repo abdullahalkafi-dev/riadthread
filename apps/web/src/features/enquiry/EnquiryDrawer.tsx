@@ -9,6 +9,7 @@ import { closeDrawer } from '@/store/site/ui.slice';
 import { trackEvent } from '../tracking/events';
 import { EmptyList, EnquiryLines } from './EnquiryLines';
 import { EnquiryForm } from './EnquiryForm';
+import { useEnquiryLines } from './useEnquiryLines';
 
 const STEPS = ['1 · Your list', '2 · Your details', '3 · We reply'] as const;
 
@@ -16,7 +17,7 @@ const STEPS = ['1 · Your list', '2 · Your details', '3 · We reply'] as const;
 export function EnquiryDrawer() {
   const dispatch = useSiteDispatch();
   const open = useSiteSelector((s) => s.ui.drawer === 'enquiry');
-  const lines = useSiteSelector((s) => s.enquiryList.lines);
+  const { lines } = useEnquiryLines();
   const [step, setStep] = useState<1 | 2 | 3>(1);
   /** Changing it gives the form a clean slate once a sent enquiry has been followed by a new list. */
   const [formKey, setFormKey] = useState(0);

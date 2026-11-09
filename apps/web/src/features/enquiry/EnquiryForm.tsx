@@ -5,10 +5,11 @@ import { useCallback, useState, type FormEvent } from 'react';
 import { BUSINESS_TYPES, type EntryPoint } from '@riad/shared';
 import { whatsappLink } from '@/lib/contact';
 import { clearList } from '@/store/site/enquiry.slice';
-import { useSiteDispatch, useSiteSelector } from '@/store/site/hooks';
+import { useSiteDispatch } from '@/store/site/hooks';
 import { useGetTrackingSettingsQuery } from '../tracking/trackingApi';
 import { ChipGroup, Field, SegGroup } from './fields';
 import { linesToItems } from './items';
+import { useEnquiryLines } from './useEnquiryLines';
 import { Turnstile, turnstileEnabled } from './Turnstile';
 import { EMPTY_CONTACT, useEnquirySubmission, type ContactValues, type EnquiryItemInput } from './useEnquirySubmission';
 
@@ -39,7 +40,7 @@ const TYPES = BUSINESS_TYPES.map((t) => ({ value: t, label: t === 'Mosque or cen
  */
 export function EnquiryForm({ entryPoint, items, productLabel, onSent, onStep }: Props) {
   const dispatch = useSiteDispatch();
-  const lines = useSiteSelector((s) => s.enquiryList.lines);
+  const { lines } = useEnquiryLines();
   const { data: settings } = useGetTrackingSettingsQuery();
   const { submit, errors, formError, pending, reference, reset } = useEnquirySubmission();
 
