@@ -16,6 +16,8 @@ const config: Config = {
         brass: { 200: '#efdfb8', 300: '#e3c98f', 400: '#cfae6a', 500: '#b08d47', 600: '#8c6f35' },
         night: { 800: '#241c15', 900: '#18130f', 950: '#100c09' },
         whatsapp: '#25D366',
+        /* Dashboard palette (dashboard-mvp design): softer than the public site. */
+        admin: { bg: '#f7f2e9', surface: '#ffffff', line: '#e6dccb', ok: '#0f6b3a', 'ok-dark': '#0b5630', warn: '#b08d47', danger: '#a3321f' },
         ink: { DEFAULT: '#2b2119', soft: '#6b5d4f', mute: '#9a8b78' },
       },
       fontFamily: {
@@ -23,7 +25,11 @@ const config: Config = {
         sans: ['var(--font-sans)', 'Instrument Sans', 'system-ui', 'sans-serif'],
         ruqaa: ['var(--font-ruqaa)', 'Aref Ruqaa', 'serif'],
       },
-      borderRadius: { arch: '999px 999px 0 0' },
+      borderRadius: { arch: '999px 999px 0 0', card: '14px' },
+      boxShadow: {
+        card: '0 1px 2px rgba(43,33,25,.06), 0 6px 20px -8px rgba(43,33,25,.12)',
+        drawer: '-20px 0 50px -20px rgba(0,0,0,.35)',
+      },
       backgroundImage: {
         sunset: 'linear-gradient(160deg, #f5efe4 0%, #ecd9c4 45%, #e3a487 100%)',
         'majorelle-deep': 'radial-gradient(90% 80% at 20% 0%, #3557d6 0%, #1f348a 45%, #111c42 100%)',

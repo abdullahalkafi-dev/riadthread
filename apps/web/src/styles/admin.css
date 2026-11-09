@@ -1,0 +1,82 @@
+/*
+ * Dashboard-only styles that utilities cannot express (patterns, pseudo-element
+ * decoration, timeline rails). Everything else is Tailwind in the components.
+ * Shared by the dashboard core and the catalogue/content screens.
+ */
+@layer components {
+  /* Brass and terracotta tile strip under the sidebar brand. */
+  .admin-zellige {
+    height: 10px;
+    background:
+      conic-gradient(from 45deg at 50% 50%, #cfae6a 0 25%, transparent 0 50%, #b9603f 0 75%, transparent 0) 0 0 / 10px 10px,
+      #100c09;
+  }
+
+  /* Eight-point star pattern used on the greeting banner and the login art. */
+  .admin-star {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='.8'%3E%3Cpath d='M28 4l7 17 17 7-17 7-7 17-7-17-17-7 17-7z'/%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  /* Visitor journey: a vertical rail with a dot per step. */
+  .admin-timeline {
+    position: relative;
+    padding-left: 22px;
+  }
+  .admin-timeline::before {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 6px;
+    bottom: 6px;
+    width: 2px;
+    background: #dccdb4;
+  }
+  .admin-timeline > li {
+    position: relative;
+    list-style: none;
+    padding-bottom: 13px;
+  }
+  .admin-timeline > li::before {
+    content: '';
+    position: absolute;
+    left: -21px;
+    top: 5px;
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: #fff;
+    border: 2px solid #b9603f;
+  }
+  .admin-timeline > li[data-kind='start']::before {
+    background: #3557d6;
+    border-color: #3557d6;
+  }
+  .admin-timeline > li[data-kind='end']::before {
+    background: #0f6b3a;
+    border-color: #0f6b3a;
+  }
+
+  /* Soft tinted disc in the corner of a stat card (colour comes from --accent). */
+  .admin-stat::after {
+    content: '';
+    position: absolute;
+    right: -18px;
+    top: -18px;
+    width: 70px;
+    height: 70px;
+    border-radius: 999px;
+    background: var(--accent, #f8e3d9);
+    opacity: 0.7;
+  }
+
+  /* Toasts slide up into place. */
+  .admin-toast-in {
+    animation: admin-toast-up 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  @keyframes admin-toast-up {
+    from {
+      transform: translateY(12px);
+      opacity: 0;
+    }
+  }
+}
