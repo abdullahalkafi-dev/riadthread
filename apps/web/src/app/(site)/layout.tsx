@@ -8,6 +8,9 @@ import { Overlay } from '@/components/site/Overlay';
 import { RevealObserver } from '@/components/site/RevealObserver';
 import { Toast } from '@/components/site/Toast';
 import { TopBar, type TickerMessage } from '@/components/site/TopBar';
+import { QuickViewDrawer } from '@/features/catalogue/QuickViewDrawer';
+import { EnquiryDrawer } from '@/features/enquiry/EnquiryDrawer';
+import { QuickEnquiryDrawer } from '@/features/enquiry/QuickEnquiryDrawer';
 import { TOP_BAR_MESSAGES } from '@/features/home/content';
 import { SearchPanel } from '@/features/search/SearchPanel';
 import { ConsentBanner } from '@/features/tracking/ConsentBanner';
@@ -54,6 +57,9 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <Toast />
       <MenuDrawer links={links} categories={navCategories} collections={navCollections} settings={settings} />
       <SearchPanel suggestions={navCategories.slice(0, 4).map((c) => c.name)} />
+      <EnquiryDrawer />
+      <QuickEnquiryDrawer />
+      <QuickViewDrawer />
       <ConsentBanner />
       <Tracker />
       <RevealObserver />

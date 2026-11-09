@@ -1,3 +1,4 @@
+import { withoutBlur } from '@/lib/light';
 import type { Media, Taxonomy } from '@/types/api';
 
 export interface NavLink {
@@ -12,7 +13,7 @@ export interface NavCategory {
   image: Media | null;
 }
 
-export const toNavCategory = (c: Taxonomy): NavCategory => ({ slug: c.slug, name: c.name, image: c.image });
+export const toNavCategory = (c: Taxonomy): NavCategory => ({ slug: c.slug, name: c.name, image: c.image && withoutBlur(c.image) });
 
 export const categoryHref = (slug: string) => `/collections?category=${encodeURIComponent(slug)}`;
 export const collectionHref = (slug: string) => `/collections/${encodeURIComponent(slug)}`;

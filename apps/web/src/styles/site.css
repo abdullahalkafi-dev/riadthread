@@ -4,7 +4,6 @@
  * button / field primitives of design 5. Everything else is utility classes.
  */
 
-@layer components {
   /* ---------- patterns ---------- */
   .zellige-strip {
     height: 14px;
@@ -392,7 +391,7 @@
       opacity 0.4s;
     opacity: 0;
   }
-  .craft-item .desc > div {
+  .craft-item .desc > * {
     overflow: hidden;
   }
   .craft-item[aria-selected='true'] .desc {
@@ -608,7 +607,6 @@
     border-top: 1px solid rgba(43, 33, 25, 0.12);
     margin: 2rem 0;
   }
-}
 
 @keyframes rt-marquee {
   to {
