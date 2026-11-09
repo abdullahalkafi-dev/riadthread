@@ -1,4 +1,4 @@
-import { productInput, SIZE_PRESETS } from '@riad/shared';
+import { productInput, publishChecks, SIZE_PRESETS, type PublishCheck } from '@riad/shared';
 import type { ProductCreateBody, ProductPatchBody } from '@/store/admin/productsApi';
 import type { AdminProduct, Media } from '@/types/api';
 
@@ -186,6 +186,30 @@ export function patchBody(saved: ProductDraft, d: ProductDraft): ProductPatchBod
 export const isDirty = (saved: ProductDraft, d: ProductDraft) => Object.keys(patchBody(saved, d)).length > 0;
 
 /* ----------------------------- client checks ----------------------------- */
+
+/**
+ * The "Ready to publish?" list, worked out live from the draft with the same rule
+ * the API uses to block publishing, plus a warning while files are still processing.
+ */
+export function draftChecks(d: ProductDraft): PublishCheck[] {
+  const checks = publishChecks(
+    {
+      name: d.name,
+      code: d.code,
+      categoryId: d.categoryId || undefined,
+      colours: d.colours.map((c) => ({ swatchMediaId: c.swatchMediaId })),
+      sizes: d.sizes,
+      media: d.media.map((m) => ({ mediaId: m.mediaId, alt: m.alt })),
+      wholesale: { moq: d.wholesale.moq, packText: d.wholesale.packText },
+    },
+    (id) => d.media.find((m) => m.mediaId === id)?.media?.type,
+  );
+  const notReady = [...d.media.map((m) => m.media), ...d.colours.map((c) => c.swatch)].filter((m) => m && m.status !== 'ready').length;
+  if (notReady > 0) {
+    checks.push({ key: 'ready', label: `${notReady} file${notReady > 1 ? 's are' : ' is'} still processing or failed`, ok: false, tab: 'media' });
+  }
+  return checks;
+}
 
 export type FieldErrors = Record<string, string>;
 
