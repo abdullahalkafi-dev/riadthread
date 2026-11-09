@@ -51,4 +51,10 @@ export const mediaApi = baseApi.injectEndpoints({
   }),
 });
 
-export const { useListMediaQuery, useGetMediaQuery, useRetryMediaMutation, useDeleteMediaMutation } = mediaApi;
+export const {
+  useListMediaQuery,
+  useGetMediaQuery,
+  useLazyGetMediaQuery,
+  useRetryMediaMutation,
+  useDeleteMediaMutation,
+} = mediaApi;

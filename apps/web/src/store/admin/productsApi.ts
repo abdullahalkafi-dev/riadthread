@@ -7,7 +7,6 @@ import type { AdminProduct, AdminProductRow, ApiEnvelope, PageMeta } from '@/typ
 export type ProductCreateBody = z.input<typeof productInput>;
 /** PATCH is a true partial: only the fields that changed are sent. */
 export type ProductPatchBody = z.input<typeof productUpdate>;
-export type ProductMediaRef = NonNullable<ProductCreateBody['media']>[number];
 export type ProductStatusAction = 'publish' | 'unpublish' | 'archive';
 
 export interface ProductListArgs {
@@ -54,13 +53,6 @@ export const productsApi = baseApi.injectEndpoints({
       invalidatesTags: (_r, _e, { id }) => [{ type: 'Product', id }, { type: 'Product', id: 'LIST' }, 'Category', 'Collection'],
     }),
 
-    /** Saves the full media order in one call; the API validates every reference. */
-    updateProductMediaOrder: build.mutation<AdminProduct, { id: string; media: ProductMediaRef[] }>({
-      query: ({ id, media }) => ({ url: `/admin/products/${id}/media/order`, method: 'PATCH', body: { media } }),
-      transformResponse: unwrap<AdminProduct>,
-      invalidatesTags: (_r, _e, { id }) => [{ type: 'Product', id }],
-    }),
-
     setProductStatus: build.mutation<AdminProduct, { id: string; action: ProductStatusAction }>({
       query: ({ id, action }) => ({ url: `/admin/products/${id}/${action}`, method: 'POST' }),
       transformResponse: unwrap<AdminProduct>,
@@ -87,7 +79,6 @@ export const {
   useLazyGetProductQuery,
   useCreateProductMutation,
   useUpdateProductMutation,
-  useUpdateProductMediaOrderMutation,
   useSetProductStatusMutation,
   useDuplicateProductMutation,
   useDeleteProductMutation,
