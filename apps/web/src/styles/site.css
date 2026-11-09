@@ -59,25 +59,29 @@
     border: 1.5px solid #cfae6a;
     animation: rt-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
   }
-  .reveal {
-    opacity: 0;
-    transform: translateY(22px);
-    transition:
-      opacity 0.8s cubic-bezier(0.2, 0.7, 0.2, 1),
-      transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
-  }
-  .reveal.is-in {
-    opacity: 1;
-    transform: none;
-  }
-  .reveal[data-delay='1'] {
-    transition-delay: 0.08s;
-  }
-  .reveal[data-delay='2'] {
-    transition-delay: 0.16s;
-  }
-  .reveal[data-delay='3'] {
-    transition-delay: 0.24s;
+  /*
+   * Scroll reveal. Driven by the browser's own scroll timeline, so it needs no
+   * JavaScript (nothing to disagree with server-rendered HTML) and content simply
+   * stays visible where the feature is not supported. It animates the `translate`
+   * property, which leaves `transform` free for hover effects on the same element.
+   */
+  @supports (animation-timeline: view()) {
+    .reveal {
+      opacity: 0;
+      translate: 0 22px;
+      animation: rt-reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 4% entry 38%;
+    }
+    .reveal[data-delay='1'] {
+      animation-range: entry 8% entry 42%;
+    }
+    .reveal[data-delay='2'] {
+      animation-range: entry 12% entry 46%;
+    }
+    .reveal[data-delay='3'] {
+      animation-range: entry 16% entry 50%;
+    }
   }
 
   /* ---------- header ---------- */
@@ -625,6 +629,12 @@
     opacity: 0;
   }
 }
+@keyframes rt-reveal {
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
 @keyframes rt-rise {
   from {
     transform: translateY(108%);
@@ -662,7 +672,8 @@
     transition-duration: 0.01ms !important;
   }
   .reveal {
+    animation: none;
     opacity: 1;
-    transform: none;
+    translate: none;
   }
 }

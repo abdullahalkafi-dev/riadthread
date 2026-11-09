@@ -5,7 +5,6 @@ import { Intro } from '@/components/site/Intro';
 import { MenuDrawer } from '@/components/site/MenuDrawer';
 import { toNavCategory, mainLinks } from '@/components/site/nav';
 import { Overlay } from '@/components/site/Overlay';
-import { RevealObserver } from '@/components/site/RevealObserver';
 import { Toast } from '@/components/site/Toast';
 import { TopBar, type TickerMessage } from '@/components/site/TopBar';
 import { QuickViewDrawer } from '@/features/catalogue/QuickViewDrawer';
@@ -37,7 +36,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
   return (
     <SiteProviders>
       <noscript>
-        <style>{'.reveal{opacity:1;transform:none}#intro{display:none}'}</style>
+        <style>{'#intro{display:none}'}</style>
       </noscript>
       <Intro />
       <a
@@ -62,7 +61,6 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <QuickViewDrawer />
       <ConsentBanner />
       <Tracker />
-      <RevealObserver />
     </SiteProviders>
   );
 }
