@@ -33,7 +33,7 @@ export function Topbar({ newCount, onMenu }: TopbarProps) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search enquiries, businesses, products…"
-          aria-label="Search enquiries"
+          aria-label="Search the dashboard"
           className="w-full rounded-xl border border-admin-line bg-white py-2.5 pl-[38px] pr-3 outline-none focus:border-terracotta-500 focus:ring-4 focus:ring-terracotta-500/10"
         />
       </form>

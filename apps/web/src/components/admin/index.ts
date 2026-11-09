@@ -9,4 +9,5 @@ export { Callout, EmptyState, PageHeader, Thumbs } from './Layout';
 export { Pagination } from './Pagination';
 export { QueryError } from './QueryError';
 export { Table, TBody, Td, Th, THead, Tr } from './Table';
+export { ThumbImage } from './ThumbImage';
 export { ToastHost, useToast } from './Toasts';

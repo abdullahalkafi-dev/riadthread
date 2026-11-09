@@ -1,5 +1,6 @@
 import { cn } from '@/lib/cn';
 import { Icon } from './Icon';
+import { ThumbImage } from './ThumbImage';
 
 interface PageHeaderProps {
   title: string;
@@ -59,15 +60,13 @@ interface ThumbsProps {
 export function Thumbs({ urls, total }: ThumbsProps) {
   const shown = urls.slice(0, 3);
   const more = (total ?? urls.length) - shown.length;
-  const arch =
-    'h-14 w-11 flex-none rounded-t-full rounded-b-md border-2 border-white bg-sand-200 object-cover shadow-[0_0_0_1px_#e6dccb]';
+  const arch = 'h-14 w-11 flex-none rounded-t-full rounded-b-md border-2 border-white shadow-[0_0_0_1px_#e6dccb]';
   return (
     <div className="flex">
       {shown.map((url, i) => (
-        // eslint-disable-next-line @next/next/no-img-element -- small stored thumbnails, no srcset needed
-        <img key={url + i} src={url} alt="" loading="lazy" className={cn(arch, i > 0 && '-ml-3.5')} />
+        <ThumbImage key={url + i} src={url} className={cn(arch, i > 0 && '-ml-3.5')} />
       ))}
-      {shown.length === 0 && <div className={cn(arch, 'grid place-items-center text-ink-mute')}><Icon name="img" /></div>}
+      {shown.length === 0 && <ThumbImage src={null} className={arch} />}
       {more > 0 && (
         <div className={cn(arch, '-ml-3.5 grid place-items-center text-xs font-bold')}>+{more}</div>
       )}

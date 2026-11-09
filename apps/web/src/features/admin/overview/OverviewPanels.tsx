@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Card, CardBody, CardHeader, EmptyState, ScoreBadge, StatusPill, Thumbs, ButtonLink } from '@/components/admin';
+import { ButtonLink, Card, CardBody, CardHeader, EmptyState, ScoreBadge, StatusPill, ThumbImage, Thumbs } from '@/components/admin';
 import { formatDate, timeAgo } from '@/lib/admin-format';
 import type { Overview } from '@/types/api';
 import { enquiryHref, PIPELINE, STATUS_COLOUR, statusLabel } from '../enquiries/statusMeta';
@@ -111,12 +111,7 @@ export function TopProductsCard({ products }: { products: Overview['topProducts'
         ) : (
           products.map((p) => (
             <div key={p.productId} className="flex items-center gap-3 py-[9px]">
-              {p.thumb ? (
-                // eslint-disable-next-line @next/next/no-img-element -- small stored thumbnail
-                <img src={p.thumb} alt="" loading="lazy" className="h-12 w-[38px] flex-none rounded-[10px] border-2 border-white bg-sand-200 object-cover shadow-[0_0_0_1px_#e6dccb]" />
-              ) : (
-                <div className="h-12 w-[38px] flex-none rounded-[10px] bg-sand-200" />
-              )}
+              <ThumbImage src={p.thumb} className="h-12 w-[38px] flex-none rounded-[10px] border-2 border-white shadow-[0_0_0_1px_#e6dccb]" />
               <div className="min-w-0 flex-1">
                 <div className="flex justify-between gap-2">
                   <b className="truncate font-semibold">{p.name}</b>

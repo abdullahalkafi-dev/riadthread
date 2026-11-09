@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Badge, Button, Callout, Card, Input, Textarea, type BadgeTone } from '@/components/admin';
+import { Badge, Button, Callout, Card, Input, Textarea, ThumbImage, type BadgeTone } from '@/components/admin';
 import { followUpState, formatDate, formatDateTime, toDateInput } from '@/lib/admin-format';
 import type { EmailState, EnquiryDetail } from '@/types/api';
 
@@ -34,12 +34,7 @@ export function RequestedItems({ items, qtyTotal }: { items: EnquiryDetail['item
     <Section title={`Requested products · ${items.length} · ${qtyTotal} units`}>
       {items.map((item, i) => (
         <div key={`${item.productId}-${item.colour}-${i}`} className="mb-2 flex gap-3 rounded-xl border border-admin-line bg-white p-2.5">
-          {item.thumb ? (
-            // eslint-disable-next-line @next/next/no-img-element -- stored thumbnail
-            <img src={item.thumb} alt="" loading="lazy" className="h-[58px] w-[46px] flex-none rounded-t-full rounded-b-md border-2 border-white bg-sand-200 object-cover shadow-[0_0_0_1px_#e6dccb]" />
-          ) : (
-            <div className="h-[58px] w-[46px] flex-none rounded-t-full rounded-b-md bg-sand-200" />
-          )}
+          <ThumbImage src={item.thumb} className="h-[58px] w-[46px] flex-none rounded-t-full rounded-b-md border-2 border-white shadow-[0_0_0_1px_#e6dccb]" />
           <div className="min-w-0 flex-1">
             <div className="font-semibold">{item.name}</div>
             <div className="text-[12.5px] text-ink-soft">

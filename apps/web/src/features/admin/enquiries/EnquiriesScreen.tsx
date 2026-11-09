@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { EnquiryStatus } from '@riad/shared';
 import { Button, Card, Icon, Input, PageHeader, Pagination, QueryError, Segmented, Select, useToast } from '@/components/admin';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -32,20 +32,26 @@ function TableSkeleton() {
 /** Search box that waits for a pause in typing before it changes the address. */
 function SearchBox({ value, onCommit }: { value: string; onCommit: (q: string) => void }) {
   const [draft, setDraft] = useState(value);
+  // The parent passes a fresh callback on every render; keeping the latest one in a ref
+  // stops it from restarting the timer, so only typing does.
+  const commit = useRef(onCommit);
+  useEffect(() => {
+    commit.current = onCommit;
+  });
   // Follow the address when it changes from elsewhere (the topbar search, back button).
   useEffect(() => setDraft(value), [value]);
   useEffect(() => {
-    if (draft === value) return;
-    const timer = setTimeout(() => onCommit(draft.trim()), 350);
+    if (draft.trim() === value) return;
+    const timer = setTimeout(() => commit.current(draft.trim()), 350);
     return () => clearTimeout(timer);
-  }, [draft, value, onCommit]);
+  }, [draft, value]);
 
   return (
     <div className="relative min-w-[220px] max-w-[320px] flex-1">
       <Icon name="search" className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-mute" />
       <Input
         type="search"
-        aria-label="Search enquiries"
+        aria-label="Filter enquiries"
         placeholder="Business, name, reference, product…"
         value={draft}
         onChange={(e) => setDraft(e.target.value)}
