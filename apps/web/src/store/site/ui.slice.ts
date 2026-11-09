@@ -3,14 +3,24 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 /** Side panels of the public site. Only one is open at a time. */
 export type Drawer = 'menu' | 'search' | 'enquiry' | 'quickView' | 'quickEnquiry' | null;
 
+/** The product a visitor is asking about in the "Ask about this style" panel. */
+export interface QuickEnquiryProduct {
+  id: string;
+  slug: string;
+  name: string;
+  code: string;
+  colour: string | null;
+}
+
 interface UiState {
   drawer: Drawer;
   /** Slug of the product shown in the quick view panel. */
   quickViewSlug: string | null;
+  quickEnquiryProduct: QuickEnquiryProduct | null;
   toast: { id: number; message: string } | null;
 }
 
-const initialState: UiState = { drawer: null, quickViewSlug: null, toast: null };
+const initialState: UiState = { drawer: null, quickViewSlug: null, quickEnquiryProduct: null, toast: null };
 
 const slice = createSlice({
   name: 'ui',
@@ -22,6 +32,10 @@ const slice = createSlice({
     openQuickView(state, action: PayloadAction<string>) {
       state.drawer = 'quickView';
       state.quickViewSlug = action.payload;
+    },
+    openQuickEnquiry(state, action: PayloadAction<QuickEnquiryProduct>) {
+      state.drawer = 'quickEnquiry';
+      state.quickEnquiryProduct = action.payload;
     },
     closeDrawer(state) {
       state.drawer = null;
@@ -35,5 +49,5 @@ const slice = createSlice({
   },
 });
 
-export const { openDrawer, openQuickView, closeDrawer, showToast, clearToast } = slice.actions;
+export const { openDrawer, openQuickView, openQuickEnquiry, closeDrawer, showToast, clearToast } = slice.actions;
 export const uiReducer = slice.reducer;
